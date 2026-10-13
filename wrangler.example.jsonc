@@ -1,0 +1,43 @@
+{
+  // Publishes the built site folder to Cloudflare, plus one small server program
+  // (worker.js) that handles the feedback form. Never the working folder: that
+  // holds tests and build scripts that are not part of the site.
+  // Build first (node build-site.js), then deploy (npx wrangler deploy).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "costofsaving",
+  "compatibility_date": "2026-10-01",
+
+  // The server program. It sees every request first, so it can send "www" and
+  // plain http to the one secure address. It answers addresses that start with
+  // /api/ itself and passes everything else straight to the site's files.
+  "main": "worker.js",
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
+  },
+
+  // Where comments wait for approval, and where the published ones are kept.
+  "kv_namespaces": [
+    { "binding": "FEEDBACK", "id": "fd87313815b94873a67fb12679aa385a" }
+  ],
+
+  // Feedback is emailed to this one address and to no other. The address must be
+  // verified under Email Routing in the Cloudflare dashboard before mail will send.
+  "send_email": [
+    { "name": "MAIL", "destination_address": "you@example.com" }
+  ],
+  "vars": { "OWNER_EMAIL": "you@example.com" },
+
+  // One secret is set separately and is not in this file:
+  //   FEEDBACK_KEY   signs the approve link in each feedback email
+  //   (set with: npx wrangler secret put FEEDBACK_KEY)
+
+  // The site's own addresses. Cloudflare creates the DNS records and the HTTPS
+  // certificate for these, because the domain is registered on the same account.
+  "routes": [
+    { "pattern": "costofsaving.com", "custom_domain": true },
+    { "pattern": "www.costofsaving.com", "custom_domain": true }
+  ]
+}

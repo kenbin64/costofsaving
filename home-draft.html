@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Cost of Saving (front page draft)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap">
+<!-- DRAFT, 2026-10-11. The front page: the saying, five decisions each with a small
+     calculator that takes the visitor's own numbers, and the five ways a cost behaves.
+     Not listed in build-site.js, so it is not on the live site. Open it straight from the folder.
+     The live front page (home.html) is untouched.
+
+     LAYOUT. The page uses the full width of the screen. Its proportions come from one
+     ratio, 1 to 1.618:
+       - the opening row is split 1 : 1.618 (the saying, then the calculator)
+       - inside the calculator the split is 1.618 : 1 (the boxes, then the answer)
+       - type sizes step by 1.618: 17, 27, 44, 72
+       - gaps and corners use 8, 13, 21, 34, 55, 89
+     Each decision and each kind of cost has its own colour, used for its panel. -->
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #0b1120; --panel: #131c31; --ink: #f8fafc; --ink-2: #cbd5e1; --muted: #94a3b8; --line: #263349;
+    --c: #14b8a6;                       /* the colour of whatever is selected; set by the page */
+    --s1: 8px; --s2: 13px; --s3: 21px; --s4: 34px; --s5: 55px; --s6: 89px;
+    --display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font: 17px/1.55 var(--body);
+    background:
+      radial-gradient(60vw 50vh at 8% -10%, rgba(20, 184, 166, 0.20), transparent 62%),
+      radial-gradient(50vw 50vh at 100% 0%, rgba(144, 133, 233, 0.20), transparent 62%),
+      radial-gradient(60vw 60vh at 62% 110%, rgba(213, 81, 129, 0.14), transparent 62%),
+      var(--page);
+    background-attachment: fixed;
+  }
+  p, h1, h2, h3 { margin: 0; }
+  a { color: var(--ink); text-underline-offset: 3px; }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
+  .hint { font-size: 14px; color: var(--muted); }
+  .top { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; justify-content: space-between; }
+  .top .brand { font: 800 19px var(--display); text-decoration: none; }
+  .top nav { display: flex; flex-wrap: wrap; gap: var(--s1); }
+  .top nav a { font: 700 15px var(--body); text-decoration: none; color: var(--ink-2); padding: 8px 16px; border-radius: 999px; border: 1px solid transparent; }
+  .top nav a:hover { border-color: var(--line); color: var(--ink); }
+  .top nav a[aria-current="page"] { background: rgba(255, 255, 255, 0.08); border-color: var(--line); color: var(--ink); }
+
+  .page { padding: clamp(21px, 4vw, 55px); display: grid; gap: var(--s5); max-width: 1760px; margin: 0 auto; }
+
+  /* ── Opening row: 1 : 1.618 ───────────────────────────────────────────── */
+  .hero { display: grid; grid-template-columns: 1fr 1.618fr; gap: var(--s5); align-items: center; min-height: min(64vh, 700px); }
+  .say { display: grid; gap: var(--s3); }
+  .eyebrow { font: 700 13px var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: var(--c); }
+  h1 { font: 800 clamp(40px, 4.6vw, 72px)/1.02 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(100deg, #2dd4bf, #9085e9 55%, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lede { font-size: clamp(18px, 1.5vw, 22px); color: var(--ink-2); max-width: 34ch; }
+  .promise { display: flex; flex-wrap: wrap; gap: var(--s1); }
+  .promise span { font-size: 13px; font-weight: 600; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; background: rgba(255, 255, 255, 0.03); }
+
+  /* ── The calculator panel ─────────────────────────────────────────────── */
+  .tool {
+    display: grid; gap: var(--s3); padding: var(--s4); border-radius: var(--s4);
+    border: 1px solid color-mix(in srgb, var(--c) 45%, var(--line));
+    background: linear-gradient(150deg, color-mix(in srgb, var(--c) 20%, var(--panel)), var(--panel) 62%);
+    box-shadow: 0 34px 89px -34px color-mix(in srgb, var(--c) 55%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+  }
+  .tool h2 { font: 800 27px/1.15 var(--display); }
+  .tabs { display: flex; flex-wrap: wrap; gap: var(--s1); }
+  .tabs button {
+    font: 700 15px var(--body); color: var(--ink); cursor: pointer; padding: 10px 16px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--c) 45%, var(--line)); background: color-mix(in srgb, var(--c) 12%, transparent);
+    transition: transform 0.15s, background 0.15s;
+  }
+  .tabs button:hover { transform: translateY(-2px); background: color-mix(in srgb, var(--c) 26%, transparent); }
+  .tabs button[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #0b1120; box-shadow: 0 8px 21px -8px var(--c); }
+  .tool-grid { display: grid; grid-template-columns: 1.618fr 1fr; gap: var(--s4); align-items: stretch; }
+  .in { display: grid; gap: var(--s2); align-content: start; }
+  .boxes { display: grid; gap: var(--s1); }
+  .boxes label { display: grid; grid-template-columns: 1fr 12ch; gap: var(--s2); align-items: center; color: var(--ink-2); font-size: 16px; }
+  .boxes input {
+    font: 600 17px var(--body); color: var(--ink); text-align: right; width: 100%; padding: 10px 12px; border-radius: var(--s2);
+    border: 1px solid var(--line); background: rgba(11, 17, 32, 0.7);
+  }
+  .boxes input:focus { border-color: var(--c); }
+  .out {
+    display: grid; gap: var(--s2); align-content: start; padding: var(--s3); border-radius: var(--s3);
+    background: rgba(11, 17, 32, 0.55); border: 1px solid var(--line);
+  }
+  .answer { font: 800 clamp(21px, 1.7vw, 27px)/1.2 var(--display); }
+  .out-foot { display: grid; grid-template-columns: 1fr 89px; gap: var(--s2); align-items: end; }
+  .out-foot img { width: 89px; height: auto; display: block; filter: drop-shadow(0 8px 13px rgba(0, 0, 0, 0.45)); }
+  .more { font-size: 14px; font-weight: 600; }
+
+  /* The kind of gain or loss, beside an answer. */
+  .kind-tag { display: grid; gap: var(--s1); padding: var(--s2); border-radius: var(--s2); border: 1px solid color-mix(in srgb, var(--c) 45%, var(--line)); background: color-mix(in srgb, var(--c) 12%, transparent); }
+  .kind-tag svg { width: 100%; height: auto; max-height: 96px; display: block; }
+  .kind-tag b { font: 800 18px var(--display); }
+  .kind-plain { color: var(--muted); font-size: 14px; }
+  .kind-why { display: block; color: var(--ink-2); font-size: 14px; }
+
+  /* ── The five kinds: five colour panels across the page ───────────────── */
+  .five { display: grid; gap: var(--s3); }
+  .five-head { display: grid; grid-template-columns: 1fr 1.618fr; gap: var(--s5); align-items: end; }
+  .five h2 { font: 800 clamp(27px, 2.8vw, 44px)/1.08 var(--display); letter-spacing: -0.01em; text-wrap: balance; }
+  .push { display: flex; gap: var(--s2); align-items: center; color: var(--ink-2); font-weight: 600; }
+  .push input { flex: 1; accent-color: #2dd4bf; height: 34px; }
+  .push b { min-width: 9ch; text-align: right; }
+  .kinds { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s3); }
+  .kind {
+    display: grid; gap: var(--s2); align-content: start; padding: var(--s3); border-radius: var(--s3);
+    border: 1px solid color-mix(in srgb, var(--c) 50%, var(--line));
+    background: linear-gradient(165deg, color-mix(in srgb, var(--c) 30%, var(--panel)), var(--panel) 70%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .kind:hover { transform: translateY(-5px); box-shadow: 0 21px 55px -21px var(--c), inset 0 1px 0 rgba(255, 255, 255, 0.07); }
+  .kind svg { width: 100%; height: auto; max-height: 144px; display: block; }
+  .hero > *, .tool-grid > *, .kinds > *, .five-head > * { min-width: 0; }      /* let panels shrink on a narrow screen */
+  .kind h3 { font: 800 21px/1.15 var(--display); }
+  .kind h3 small { display: block; font: 600 13px var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--c); filter: brightness(1.35); margin-top: 3px; }
+  .kind p { color: var(--ink-2); font-size: 15px; }
+  .kind .now { color: var(--ink); font-weight: 700; padding-top: var(--s1); border-top: 1px solid color-mix(in srgb, var(--c) 40%, var(--line)); }
+
+  .more summary { cursor: pointer; font: 700 17px var(--body); color: var(--ink-2); padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: 999px; width: fit-content; list-style: none; }
+  .more summary::-webkit-details-marker { display: none; }
+  .more summary::before { content: '+ '; color: #2dd4bf; }
+  .more[open] summary::before { content: '- '; }
+  .more-in { display: grid; gap: var(--s3); padding-top: var(--s3); max-width: 80ch; }
+  .all { display: flex; flex-wrap: wrap; gap: var(--s1); }
+  .all a { font-weight: 600; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; }
+  .faq { margin: 0; display: grid; gap: 6px; }
+  .faq dt { font-weight: 700; color: var(--ink); margin-top: var(--s2); }
+  .faq dd { margin: 0; color: var(--ink-2); }
+  .foot { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); justify-content: space-between; border-top: 1px solid var(--line); padding-top: var(--s3); }
+  .foot a { color: var(--ink-2); }
+
+  @media (max-width: 1180px) {
+    .hero { grid-template-columns: 1fr; min-height: 0; }
+    .lede { max-width: 60ch; }
+    .five-head { grid-template-columns: 1fr; gap: var(--s2); }
+    .kinds { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .tool { padding: var(--s3); border-radius: var(--s3); }
+    .tool-grid { grid-template-columns: 1fr; }
+    .boxes label { grid-template-columns: 1fr 9ch; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="page">
+
+  <div class="top">
+    <a class="brand" href="home-draft.html">Cost of Saving</a>
+    <nav aria-label="Sections"><a href="home-draft.html" aria-current="page">Decide</a><a href="system-draft.html">Systems</a><a href="formulas.html">Formulas</a><a href="feedback.html">Feedback</a></nav>
+  </div>
+
+  <header class="hero">
+    <div class="say">
+      <span class="eyebrow">Cost of Saving</span>
+      <h1>They say a dollar saved is <em>a dollar earned.</em></h1>
+      <p class="lede">Sometimes it is. Sometimes a saving costs more than it saves. Pick what you are deciding, put in your own numbers, and see which it is and what kind of gain or loss you are looking at.</p>
+      <p class="promise"><span>Free</span><span>No sign-up</span><span>Nothing you type is sent</span><span>Every formula published</span></p>
+    </div>
+
+    <section class="tool" id="tool" aria-label="Work out what it really costs">
+      <h2>What are you deciding?</h2>
+      <div class="tabs" id="tabs" role="group" aria-label="What you are deciding"></div>
+      <div class="tool-grid">
+        <div class="in">
+          <p class="hint" id="tab-hint"></p>
+          <div class="boxes" id="boxes"></div>
+          <p class="hint">The figures shown are examples. Type over them with yours.</p>
+        </div>
+        <div class="out">
+          <p class="answer" id="ans-line" aria-live="polite"></p>
+          <p class="hint" id="ans-sub"></p>
+          <div id="ans-kind"></div>
+          <div class="out-foot">
+            <a class="more" id="tab-more" href="index.html"></a>
+            <img id="ans-pig" alt="" src="art/pig-save.png">
+          </div>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <section class="five" aria-labelledby="kinds-title">
+    <div class="five-head">
+      <h2 id="kinds-title">Five ways a cost or a saving behaves</h2>
+      <label class="push">Push it <input type="range" id="push" min="0" max="10" step="1" value="3" aria-label="How far to push all five"> <b id="push-v"></b></label>
+    </div>
+    <div class="kinds" id="kinds"></div>
+    <p class="hint">Most hidden costs come from treating one of the last three as if it were the first. <a href="why.html">See the sums behind each</a></p>
+  </section>
+
+  <footer class="foot hint">
+    <span>Arithmetic on your own estimates. Not advice, and not a prediction. Nothing you type into a calculator is sent anywhere. Visits are counted, without cookies. <a href="disclaimer.html">Disclaimer</a></span>
+    <span><a href="paper.html">Worked cases</a> &middot; <a href="why.html">Why costs multiply</a> &middot; <a href="assumptions.html">What to check first</a> &middot; <a href="formulas.html">The formulas</a> &middot; <a href="feedback.html">Feedback</a></span>
+  </footer>
+
+</div>
+
+<script src="multiple.js"></script>
+<script src="kinds.js"></script>
+<script src="worth.js"></script>
+<script src="saving.js"></script>
+<script src="home-draft-page.js"></script>
+</html>

@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Is It Worth It? In Detail</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap">
+<style>
+  /* Cost of Saving: dark dashboard palette. A single dark look by design, so
+     there are no light values and no theme switch. */
+  :root {
+    color-scheme: dark;
+    --page: #0f172a;          /* page background (slate 900) */
+    --surface: #1e293b;       /* cards and input wrappers (slate 800) */
+    --paper: #0f172a;         /* inside inputs and inset panels */
+    --ink: #f8fafc;           /* headings, callouts, key values */
+    --ink-2: #cbd5e1;         /* running text */
+    --muted: #94a3b8;         /* labels, descriptions, supporting copy */
+    --grid: #2a3a52;
+    --axis: #475569;
+    --line: #334155;          /* card borders */
+    --accent: #14b8a6;        /* active states, highlights, main buttons (teal 500) */
+    --accent-2: #2dd4bf;      /* teal used as text and on hover, light enough to read on slate */
+    --on-accent: #0f172a;
+    --good: #22c55e;  --good-wash: rgba(34, 197, 94, 0.15);  --good-text: #86efac;
+    --bad: #ef4444;   --bad-wash: rgba(239, 68, 68, 0.15);   --bad-text: #fca5a5;
+    --mixed: #f59e0b; --mixed-wash: rgba(245, 158, 11, 0.15); --mixed-text: #fcd34d;
+    --chip: #273449;
+    /* Chart series. The first two are the pair used side by side; checked for
+       colour-blind separation and contrast against the card colour. */
+    --o1: #3987e5; --o2: #d95926; --o3: #199e70; --o4: #c98500;
+    --o5: #d55181; --o6: #5fae3c; --o7: #9085e9; --o8: #e66767;
+    --display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+
+  body { background: var(--page); color: var(--ink); font: 17px/1.55 var(--body); padding-inline: 16px; padding-block: 28px 56px; }
+  .wrap { max-width: 1060px; margin: 0 auto; display: grid; gap: 26px; }
+  p { margin: 0; }
+
+  header { display: grid; gap: 10px; }
+  h1 { font: 800 clamp(40px, 7vw, 68px)/0.95 var(--display); font-stretch: 112%; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+  .lede { font-size: 19px; color: var(--ink-2); max-width: 62ch; }
+  h2 { font: 800 22px/1.15 var(--display); font-stretch: 112%; margin: 0; text-wrap: balance; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+  .picker { display: grid; gap: 14px; }
+  .group { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px 14px; align-items: start; }
+  .group .eyebrow { padding-top: 10px; }
+  @media (max-width: 640px) { .group { grid-template-columns: 1fr; } .group .eyebrow { padding-top: 0; } }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ex {
+    font: 700 15px var(--body); color: var(--ink); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+  }
+  .ex:hover { border-color: var(--accent); }
+  .ex[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .ex.own { border: 2px dashed var(--accent); color: var(--accent-2); }
+  .ex.own[aria-pressed="true"] { border-style: solid; color: var(--on-accent); }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .main { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  @media (max-width: 860px) { .main { grid-template-columns: 1fr; } }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+  .field { display: grid; gap: 6px; min-width: 0; }
+  .field > label, .flabel { font-weight: 700; font-size: 15px; }
+  .hint { font-size: 14px; color: var(--muted); }
+  input[type="text"] {
+    font: 500 17px var(--mono); color: var(--ink); background: var(--paper);
+    border: 1px solid var(--axis); border-radius: 8px; padding: 9px 11px; width: 100%; box-sizing: border-box; min-width: 0;
+  }
+  input.bad { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
+  input::placeholder { color: var(--muted); opacity: 0.8; }
+  .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+  @media (max-width: 460px) { .pair { grid-template-columns: 1fr; } }
+  .err { color: var(--bad); font-size: 14px; }
+  .seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+  .seg button { font: 700 15px var(--body); color: var(--ink-2); background: var(--paper); border: 0; padding: 9px 14px; cursor: pointer; }
+  .seg button + button { border-left: 1px solid var(--axis); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .tip-line { font-size: 15px; color: var(--ink-2); background: var(--chip); border-radius: 8px; padding: 10px 12px; }
+
+  .outcomes { display: grid; gap: 10px; }
+  .orow { display: grid; grid-template-columns: 12px minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) 34px; gap: 8px; align-items: center; }
+  .orow .sw { width: 12px; height: 12px; border-radius: 3px; }
+  .orow.head { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .orow input { font-size: 15px; padding: 8px 9px; }
+  .orow input.lbl { font-family: var(--body); }
+  .x { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--axis); background: var(--paper); color: var(--ink-2); cursor: pointer; font: 700 16px var(--body); }
+  .x:disabled { opacity: 0.35; cursor: default; }
+  @media (max-width: 520px) {
+    .orow { grid-template-columns: 12px minmax(0, 1fr) 34px; }
+    .orow .c, .orow .p { grid-column: 2 / 3; }
+    .orow.head { display: none; }
+  }
+  .add { justify-self: start; font: 700 15px var(--body); color: var(--accent-2); background: none; border: 1px dashed var(--accent); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+
+  /* Receipt */
+  .receipt {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 4px;
+    padding: 22px 22px 28px; font-family: var(--mono); font-size: 15px; display: grid; gap: 6px;
+    -webkit-mask: radial-gradient(circle 7px at 50% 100%, transparent 98%, #000) 0 0 / 18px 100%;
+            mask: radial-gradient(circle 7px at 50% 100%, transparent 98%, #000) 0 0 / 18px 100%;
+  }
+  .receipt .title { font-family: var(--display); font-weight: 800; font-stretch: 112%; font-size: 17px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; overflow-wrap: anywhere; }
+  .rl { display: flex; gap: 8px; align-items: baseline; }
+  .rl > span:first-child { color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
+  .rl .dots { flex: 1; border-bottom: 2px dotted var(--axis); transform: translateY(-4px); min-width: 12px; }
+  .rl b { font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .rl small { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .rl.sub { font-size: 13px; }
+  .rule { border-top: 1px dashed var(--axis); margin: 8px 0; }
+  .big b { font-size: 21px; }
+
+  .verdict { border-radius: 10px; padding: 16px 18px; display: grid; gap: 6px; border: 1px solid var(--line); }
+  .verdict .v { display: flex; gap: 10px; align-items: center; font: 800 26px/1.1 var(--display); font-stretch: 112%; }
+  .verdict .ico { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 700 17px var(--body); flex: none; }
+  .verdict.good { background: var(--good-wash); } .verdict.good .ico { background: var(--good); }
+  .verdict.bad { background: var(--bad-wash); } .verdict.bad .ico { background: var(--bad); }
+  .verdict.mixed { background: var(--mixed-wash); } .verdict.mixed .ico { background: var(--mixed); color: #1b1300; }
+  .verdict.empty { background: var(--chip); } .verdict.empty .ico { background: var(--muted); }
+  .verdict p { color: var(--ink-2); font-size: 16px; }
+
+  /* Payback bar */
+  .pbar { display: grid; gap: 8px; }
+  .track { position: relative; height: 26px; background: var(--chip); border-radius: 5px; }
+  .track .seg-fill { position: absolute; top: 0; bottom: 0; }
+  .track .seg-fill + .seg-fill { border-left: 2px solid var(--surface); }
+  .track .price { position: absolute; top: -6px; bottom: -6px; width: 3px; background: var(--ink); border-radius: 2px; }
+  .pbar .scale { display: flex; justify-content: space-between; font: 12px var(--mono); color: var(--muted); }
+
+  .chart { position: relative; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .chart text { font-family: var(--body); font-size: 12px; fill: var(--muted); }
+  .chart .num { font-family: var(--mono); font-size: 11px; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 4px 16px rgba(0,0,0,.14); border-radius: 6px; padding: 8px 10px; font-size: 14px; line-height: 1.4; max-width: 260px; z-index: 3; }
+  .tip .k { color: var(--muted); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--ink-2); }
+  .legend span { display: inline-flex; gap: 7px; align-items: center; }
+  .lsw { width: 14px; height: 12px; border-radius: 3px; display: inline-block; }
+
+  .how { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .formula { font-family: var(--mono); font-size: 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .formula b { color: var(--accent-2); font-weight: 500; }
+  ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink-2); font-size: 16px; }
+  .fine { font-size: 14px; color: var(--muted); max-width: 85ch; }
+
+  /* Question-type chooser */
+  .types { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .type {
+    text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 12px 14px; cursor: pointer; display: grid; gap: 3px; color: var(--ink); font: 400 14px/1.35 var(--body);
+  }
+  .type b { font: 800 17px/1.15 var(--display); font-stretch: 112%; }
+  .type span { color: var(--muted); }
+  .type:hover { border-color: var(--accent); }
+  .type[aria-pressed="true"] { border: 2px solid var(--accent); padding: 11px 13px; background: var(--paper); }
+  .type[aria-pressed="true"] b { color: var(--accent-2); }
+  .gfields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 12px; }
+  .gfields .wide { grid-column: 1 / -1; }
+  @media (max-width: 460px) { .gfields { grid-template-columns: 1fr; } }
+  .opt { font-weight: 400; color: var(--muted); font-size: 13px; }
+  .sitenav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sitenav a { font: 700 15px var(--body); color: var(--ink-2); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; background: var(--surface); }
+  .sitenav a:hover { border-color: var(--accent); }
+  .sitenav a[aria-current="page"] { background: var(--ink); color: var(--page); border-color: var(--ink); }
+
+  /* ── Dashboard look: applied over the page's own rules ── */
+  h1, h2, h3, .verdict-line, .say { font-stretch: normal; letter-spacing: -0.015em; }
+  .card { border-radius: 12px; }
+  input[type="text"] { color: var(--accent-2); font-weight: 700; font-size: 1.15rem; border-color: var(--line); border-radius: 6px; }
+  input[type="text"]::placeholder { color: var(--muted); font-weight: 500; opacity: 0.75; }
+  input[type="text"]:focus { border-color: var(--accent); }
+  .sitenav a[aria-current="page"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  /* Result banners: a tinted panel with a matching border, per outcome. */
+  .status { border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px 8px 10px; }
+  .status.real, .status.good { border-color: var(--good); color: var(--good-text); }
+  .status.loss, .status.bad { border-color: var(--bad); color: var(--bad-text); }
+  .status.mostly-eaten, .status.mixed { border-color: var(--mixed); color: var(--mixed-text); }
+  .status .ico { color: #0f172a; }
+  .do-line { border: 1px solid var(--good); color: var(--good-text); }
+  .do-line b { color: var(--ink); }
+  .tooltip { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
+
+  /* ── Icons: line drawings that take the colour of their label ── */
+  .ic { width: 18px; height: 18px; flex: none; }
+  .sitenav a { display: inline-flex; align-items: center; gap: 7px; }
+  .ex { display: inline-flex; align-items: center; gap: 7px; }
+/* The four question tabs. */
+  .sitenav a.tab { font-size: 17px; padding: 10px 18px; border-width: 2px; }
+  .sitenav a.tab .tabsub { font-weight: 500; font-size: 14px; opacity: 0.85; }
+  /* On a phone the four questions sit two by two, with the two reference pages under them. */
+  @media (max-width: 560px) {
+    .sitenav { display: grid; grid-template-columns: 1fr 1fr; }
+    .sitenav a { justify-content: center; min-width: 0; }
+    .sitenav a.tab { font-size: 14px; padding: 8px; line-height: 1.2; flex-direction: column; gap: 2px; text-align: center; }
+    .sitenav a.tab .tabsub { font-size: 12px; }
+    .sitenav a.tab .ic { display: none; }
+  }
+  /* Privacy note at the foot of every page. */
+  .privacy { max-width: 1060px; margin: 26px auto 0; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+  .privacy b { color: var(--ink-2); }
+  .privacy a { color: var(--accent-2); }
+</style>
+
+<div class="wrap">
+  <header>
+    <nav class="sitenav" aria-label="The four questions">
+      <a class="tab" href="index.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 7h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>Is it worth it? <span class="tabsub">spending</span></a>
+      <a class="tab" href="saving.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0z"/></svg>The cost of saving <span class="tabsub">cutting</span></a>
+      <a class="tab" href="gig.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>What am I making? <span class="tabsub">earning</span></a>
+      <a class="tab" href="wait.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>The cost of waiting <span class="tabsub">putting it off</span></a>
+      <a href="why.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Why it multiplies</a>
+      <a href="paper.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>Good on paper</a>
+      <a href="formulas.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 5H7l6 7-6 7h10"/></svg>The formulas</a>
+    </nav>
+    <h1>Is it worth it? In detail</h1>
+    <p class="lede">Warranties, subscriptions, big purchases, pawn loans, a degree. Pick what you are deciding, start from a common example or your own numbers, and see the one figure that settles it.</p>
+  </header>
+
+  <section style="display:grid;gap:10px" aria-label="What are you deciding?">
+    <span class="eyebrow">What are you deciding?</span>
+    <div class="types" id="types"></div>
+  </section>
+
+  <section class="picker" id="picker" aria-label="Choose a starting point"></section>
+
+  <div class="main">
+    <form class="card" id="gform" novalidate hidden>
+      <div class="field">
+        <label for="g-name">What is it?</label>
+        <input id="g-name" type="text" autocomplete="off" style="font-family:var(--body)">
+      </div>
+      <div class="gfields" id="gfields"></div>
+      <p class="err" id="gerrors" role="alert"></p>
+      <p class="tip-line" id="gtip" hidden></p>
+    </form>
+    <form class="card" id="form" novalidate>
+      <div class="field">
+        <label for="f-name">What is it?</label>
+        <input id="f-name" type="text" autocomplete="off" placeholder="e.g. Extended warranty on my fridge" style="font-family:var(--body)">
+      </div>
+      <div class="field">
+        <span class="flabel">What kind of deal?</span>
+        <div class="seg" id="f-kind">
+          <button type="button" data-v="protection" aria-pressed="true">Protection against a loss</button>
+          <button type="button" data-v="bet" aria-pressed="false">A bet on a prize</button>
+        </div>
+      </div>
+      <div class="pair">
+        <div class="field">
+          <label for="f-price" id="l-price">You pay</label>
+          <input id="f-price" type="text" inputmode="decimal" autocomplete="off" placeholder="79">
+        </div>
+        <div class="field">
+          <label for="f-plays">How many times</label>
+          <input id="f-plays" type="text" inputmode="numeric" autocomplete="off" placeholder="1">
+        </div>
+      </div>
+      <p class="hint" id="h-price">The price for one go: one policy term, one ticket, one spin. "How many times" repeats it: 52 weekly tickets, 600 spins.</p>
+
+      <div class="field">
+        <span class="flabel" id="l-outcomes">What could happen</span>
+        <div class="outcomes" id="outcomes"></div>
+        <button type="button" class="add" id="add">+ Add another outcome</button>
+        <span class="hint">Chance as 5%, 0.05 or 1 in 20. Payout as 250, $1,200, 2.5k or 100M. Add a row for each separate thing that could pay out.</span>
+      </div>
+
+      <div class="field" id="cushion-field">
+        <label for="f-cushion">A surprise bill you could pay without real hardship</label>
+        <input id="f-cushion" type="text" inputmode="decimal" autocomplete="off" placeholder="2,000">
+        <span class="hint">This decides whether you need the protection at all.</span>
+      </div>
+      <p class="err" id="errors" role="alert"></p>
+      <p class="tip-line" id="tip" hidden></p>
+    </form>
+
+    <div style="display:grid;gap:18px;min-width:0">
+      <div class="verdict" id="verdict" aria-live="polite"></div>
+      <div class="card pbar" id="pbar-card">
+        <span class="eyebrow">Average payback vs what you pay, per go</span>
+        <div class="track" id="track"></div>
+        <div class="scale" id="scale"></div>
+        <div class="legend" id="pbar-legend"></div>
+      </div>
+      <div class="receipt" id="receipt"></div>
+    </div>
+  </div>
+
+  <section class="card">
+    <h2 id="chart-title">Where each outcome sits</h2>
+    <p class="fine" style="color:var(--ink-2)" id="chart-note">Across: the chance. Up: the payout. The black line joins every single outcome that would pay back exactly the price (chance × payout = price). A one-outcome deal above the line comes out ahead on average. With several outcomes, their payback adds up, which the bar above shows.</p>
+    <div class="chart" id="chart"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="card" id="how-other" hidden></section>
+
+  <section class="card" id="how-chance">
+    <h2>The two numbers behind every deal</h2>
+    <div class="how">
+      <div style="display:grid;gap:10px">
+        <p class="formula"><b>chance × payout</b> = average payback</p>
+        <p style="color:var(--ink-2)">Multiply to gather the deal into one number: what it returns on average each time. Several outcomes? Add their products.</p>
+      </div>
+      <div style="display:grid;gap:10px">
+        <p class="formula"><b>price ÷ payout</b> = break-even chance</p>
+        <p style="color:var(--ink-2)">Divide to split it back apart: how likely the outcome would have to be for the price to be fair.</p>
+      </div>
+      <div style="display:grid;gap:10px">
+        <p class="formula"><b>times × (price − payback)</b> = expected loss</p>
+        <p style="color:var(--ink-2)">Repeat a losing deal and the loss grows with every go. That is why an hour of slots costs far more than one spin.</p>
+      </div>
+    </div>
+    <div class="how">
+      <div>
+        <span class="eyebrow">A rule that holds up</span>
+        <ul style="margin-top:8px">
+          <li>If you could pay the loss yourself, skip protection that loses money on average. Keep the price instead.</li>
+          <li>If the loss would wreck you (a house, a big medical bill), paying a bit over the average can be the right call. The extra buys you out of a loss you could not absorb.</li>
+          <li>Bets that lose on average are entertainment. Set the budget as the ticket price and stop there.</li>
+        </ul>
+      </div>
+      <div>
+        <span class="eyebrow">What this cannot tell you</span>
+        <ul style="margin-top:8px">
+          <li>Your real chance. The answer is only as good as that number. Look for repair or claim rates for the exact product.</li>
+          <li>Fine print: claim denials, deductibles, and cover you may already have through a credit card or employer.</li>
+          <li>Taxes on prizes, and how much you enjoy playing.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <p class="fine">Preset numbers are illustrative, not quotes, except the Powerball prize odds (the published odds for each tier; the jackpot varies) and the payday example, whose $15 per $100 fee is the typical figure the US Consumer Financial Protection Bureau cites. Real slot machines do not publish their odds; the slot presets use a typical 92% return. Nothing you type leaves this page; your own numbers are remembered in this browser only.</p>
+</div>
+
+<footer class="privacy"><p><b>Your numbers stay on this device.</b> Every sum is done in your browser. Nothing you type into a calculator is sent to, stored on, or sold by any server, and there are no accounts, cookies or tracking. <a href="formulas.html#privacy">The details</a>. <a href="feedback.html">Send feedback</a>.</p></footer>
+
+<script src="worth.js"></script>
+<script>
+'use strict';
+(function () {
+  const W = window.Worth;
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const OCOL = ['var(--o1)', 'var(--o2)', 'var(--o3)', 'var(--o4)', 'var(--o5)', 'var(--o6)', 'var(--o7)', 'var(--o8)'];
+  const MAX_OUTCOMES = 9;
+
+  // ------------------------------------------------------------- presets
+  // o: [label, chance, payout]. All illustrative unless the note says otherwise.
+  const GROUPS = [
+    { name: 'Warranties & plans', items: [
+      { id: 'tv', chip: 'TV warranty', name: '3-year extended warranty on a $600 TV', kind: 'protection', price: '79', o: [['Repair after the maker\'s warranty ends', '5%', '250']],
+        tip: 'Most TVs that fail do so inside the maker\'s own warranty, which you already get free.' },
+      { id: 'laptop', chip: 'Laptop protection', name: '3-year laptop protection plan', kind: 'protection', price: '249', o: [['Repair', '15%', '300'], ['Full replacement', '5%', '1,100']],
+        tip: 'Two outcomes: a repair or a replacement. Their paybacks add up.' },
+      { id: 'phone', chip: 'Phone plan', name: 'Phone protection, 2 years at $10 a month', kind: 'protection', price: '240', o: [['Replacement, minus $150 deductible', '25%', '750']],
+        tip: 'Payout is a $900 replacement minus the $150 deductible.' },
+      { id: 'fridge', chip: 'Appliance plan', name: '3-year service plan on a fridge', kind: 'protection', price: '180', o: [['Repair call', '10%', '400']], tip: '' },
+    ]},
+    { name: 'Travel', items: [
+      { id: 'trip', chip: 'Trip cancellation', name: 'Cancellation cover on a $1,200 non-refundable trip', kind: 'protection', price: '45', o: [['Trip cancelled for a covered reason', '5%', '1,200']],
+        tip: 'When what you could lose is large next to the price, cover can pay on average. Check what your card already covers.' },
+      { id: 'rental', chip: 'Rental car waiver', name: 'Rental damage waiver, 5 days at $25 a day', kind: 'protection', price: '125', o: [['Damage to the car', '2%', '3,000']],
+        tip: 'Many credit cards include rental damage cover. If yours does, the waiver pays for something you already have.' },
+      { id: 'refund', chip: 'Refundable fare', name: 'Paying $120 more for a refundable $450 fare', kind: 'protection', price: '120', o: [['Plans change and you need the refund', '15%', '450']],
+        tip: 'Price is the extra you pay for refundable. The payout is the fare you would otherwise lose.' },
+    ]},
+    { name: 'Insurance', items: [
+      { id: 'home', chip: 'Home insurance', name: 'Home insurance, one year', kind: 'protection', price: '1,800', o: [['Major loss', '1%', '150k']], cushion: '5,000',
+        tip: 'This loses money on average and is still the right buy for almost everyone: nobody can absorb a $150,000 loss.' },
+      { id: 'renters', chip: 'Renter\'s insurance', name: 'Renter\'s insurance, one year', kind: 'protection', price: '180', o: [['Theft or fire', '2%', '8,000']], tip: '' },
+    ]},
+    { name: 'Games of chance', items: [
+      { id: 'slots50', chip: 'Slots: $50 once through', name: '$50 through a $1 slot machine, once', kind: 'bet', price: '1', plays: '50',
+        o: [['Small win', '1 in 8', '2'], ['Medium win', '1 in 50', '10'], ['Big win', '1 in 400', '100'], ['Bigger win', '1 in 5,000', '1,000'], ['Top prize', '1 in 500,000', '10,000']],
+        tip: 'Typical 92% return: every $1 spin gives back 92¢ on average. Put $50 through once and you lose about $4. Try the one-hour version.' },
+      { id: 'slotshour', chip: 'Slots: one hour', name: 'An hour on a $1 slot machine, re-betting wins', kind: 'bet', price: '1', plays: '600',
+        o: [['Small win', '1 in 8', '2'], ['Medium win', '1 in 50', '10'], ['Big win', '1 in 400', '100'], ['Bigger win', '1 in 5,000', '1,000'], ['Top prize', '1 in 500,000', '10,000']],
+        tip: 'About 600 spins an hour. You keep re-betting the same money, so $600 goes through the machine and the 8% edge takes about $48, almost all of a $50 bankroll.' },
+      { id: 'powerball', chip: 'Powerball ticket', name: 'Powerball ticket, $100M jackpot', kind: 'bet', price: '2',
+        o: [['Jackpot', '1 in 292,201,338', '100M'], ['5 numbers', '1 in 11,688,053.52', '1M'], ['4 + Powerball', '1 in 913,129.18', '50k'],
+            ['4 numbers', '1 in 36,525.17', '100'], ['3 + Powerball', '1 in 14,494.11', '100'], ['3 numbers', '1 in 579.76', '7'],
+            ['2 + Powerball', '1 in 701.33', '7'], ['1 + Powerball', '1 in 91.98', '4'], ['Powerball only', '1 in 38.32', '4']],
+        tip: 'Published odds for every prize tier. Before taxes, and a shared jackpot would pay less.' },
+      { id: 'weekly', chip: 'Powerball weekly for a year', name: 'One Powerball ticket a week for a year', kind: 'bet', price: '2', plays: '52',
+        o: [['Jackpot', '1 in 292,201,338', '100M'], ['5 numbers', '1 in 11,688,053.52', '1M'], ['4 + Powerball', '1 in 913,129.18', '50k'],
+            ['4 numbers', '1 in 36,525.17', '100'], ['3 + Powerball', '1 in 14,494.11', '100'], ['3 numbers', '1 in 579.76', '7'],
+            ['2 + Powerball', '1 in 701.33', '7'], ['1 + Powerball', '1 in 91.98', '4'], ['Powerball only', '1 in 38.32', '4']],
+        tip: 'The same ticket 52 times: the loss per go repeats every week.' },
+      { id: 'raffle', chip: 'Charity raffle', name: '$20 raffle ticket, 500 sold, $2,000 prize', kind: 'bet', price: '20', o: [['Win', '1 in 500', '2,000']],
+        tip: 'Loses on average, but the rest goes to the cause, which may be the point.' },
+    ]},
+  ];
+  const ALL = GROUPS.flatMap((g) => g.items);
+  const OWN_BLANK = { id: 'own', name: '', kind: 'protection', price: '', plays: '', o: [['', '', '']], cushion: '', tip: '' };
+
+  // ------------------------------------------------------------- state
+  let current = 'tv';
+  let kind = 'protection';
+
+  function saveOwn() {
+    if (current !== 'own') return;
+    try { localStorage.setItem('worth-own', JSON.stringify(snapshot())); } catch (e) { /* storage unavailable */ }
+  }
+  function loadOwn() {
+    try { const s = JSON.parse(localStorage.getItem('worth-own') || 'null'); if (s && s.o) return { ...OWN_BLANK, ...s, id: 'own' }; } catch (e) { /* storage unavailable */ }
+    return OWN_BLANK;
+  }
+  function snapshot() {
+    return {
+      name: $('f-name').value, kind, price: $('f-price').value, plays: $('f-plays').value, cushion: $('f-cushion').value,
+      o: [...document.querySelectorAll('.orow:not(.head)')].map((r) => [r.querySelector('.lbl').value, r.querySelector('.c').value, r.querySelector('.p').value]),
+    };
+  }
+
+  function load(id) {
+    const e = id === 'own' ? loadOwn() : ALL.find((x) => x.id === id);
+    current = id;
+    $('f-name').value = e.name; $('f-price').value = e.price; $('f-plays').value = e.plays || '';
+    $('f-cushion').value = e.cushion || (id === 'own' ? '' : '2,000');
+    setKind(e.kind);
+    renderOutcomeRows(e.o);
+    document.querySelectorAll('.ex').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+    $('tip').textContent = e.tip || ''; $('tip').hidden = !e.tip;
+    update();
+    if (id === 'own') $('f-name').focus();
+  }
+
+  function setKind(k) {
+    kind = k;
+    document.querySelectorAll('#f-kind button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === k)));
+    $('cushion-field').hidden = k === 'bet';
+    $('l-outcomes').textContent = k === 'bet' ? 'Prizes you could win' : 'What could happen';
+    document.querySelectorAll('.orow.head .p').forEach((el) => { el.textContent = k === 'bet' ? 'Prize' : 'It pays'; });
+  }
+
+  function renderOutcomeRows(rows) {
+    const payHead = kind === 'bet' ? 'Prize' : 'It pays';
+    let h = `<div class="orow head"><span></span><span>Outcome</span><span>Chance</span><span class="p">${payHead}</span><span></span></div>`;
+    rows.forEach((r, i) => {
+      h += `<div class="orow">
+        <i class="sw" style="background:${OCOL[i % OCOL.length]}"></i>
+        <input type="text" class="lbl" id="o-l-${i}" aria-label="Outcome ${i + 1} name" placeholder="${i ? 'Another outcome' : 'What happens'}" value="${esc(r[0])}">
+        <input type="text" class="c" id="o-c-${i}" aria-label="Outcome ${i + 1} chance" placeholder="5%" value="${esc(r[1])}">
+        <input type="text" class="p" id="o-p-${i}" aria-label="Outcome ${i + 1} payout" inputmode="decimal" placeholder="250" value="${esc(r[2])}">
+        <button type="button" class="x" data-i="${i}" aria-label="Remove outcome ${i + 1}" ${rows.length === 1 ? 'disabled' : ''}>×</button>
+      </div>`;
+    });
+    $('outcomes').innerHTML = h;
+    $('add').hidden = rows.length >= MAX_OUTCOMES;
+  }
+
+  // ------------------------------------------------------------- formatting
+  function money(v, exact) {
+    if (!exact && v >= 1e6) return '$' + (v / 1e6).toFixed(v >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+    if (!exact && v >= 1e4) return '$' + (v / 1e3).toFixed(0) + 'k';
+    if (v > 0 && v < 1) return (v * 100).toFixed(v < 0.1 ? 1 : 0) + '¢';
+    return '$' + v.toLocaleString('en-US', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
+  }
+  const pct = (p) => {
+    if (p === 0) return '0%';
+    const v = p * 100;
+    if (v >= 10) return v.toFixed(0) + '%';
+    if (v >= 1) return v.toFixed(1).replace(/\.0$/, '') + '%';
+    if (v >= 0.01) return v.toFixed(2) + '%';
+    return W.oneIn(p);
+  };
+  const tickChance = (p) => {
+    if (p >= 1e-4) return pct(p);
+    const n = 1 / p;
+    return '1 in ' + (n >= 1e9 ? n / 1e9 + 'B' : n >= 1e6 ? n / 1e6 + 'M' : n / 1e3 + 'k');
+  };
+  const perDollar = (r) => (r >= 1 ? '$' + r.toFixed(2) : Math.round(r * 100) + '¢');
+
+  // ------------------------------------------------------------- read + validate
+  function read() {
+    const errs = [];
+    const mark = (el, bad) => el.classList.toggle('bad', bad);
+    const blankAll = !$('f-price').value.trim() && [...document.querySelectorAll('.orow:not(.head) input.c, .orow:not(.head) input.p')].every((i) => !i.value.trim());
+    if (blankAll) {
+      document.querySelectorAll('input.bad').forEach((i) => i.classList.remove('bad'));
+      $('errors').textContent = '';
+      return { empty: true };
+    }
+    const price = W.parseMoney($('f-price').value);
+    mark($('f-price'), !(price > 0)); if (!(price > 0)) errs.push('Enter what one go costs, for example 79 or $1,200.');
+    const playsText = $('f-plays').value.trim();
+    const plays = playsText ? Number(playsText.replace(/,/g, '')) : 1;
+    const playsOk = Number.isInteger(plays) && plays >= 1;
+    mark($('f-plays'), !playsOk); if (!playsOk) errs.push('"How many times" must be a whole number, 1 or more.');
+
+    const outcomes = [];
+    let rowErr = false;
+    document.querySelectorAll('.orow:not(.head)').forEach((r, i) => {
+      const c = W.parseChance(r.querySelector('.c').value), p = W.parseMoney(r.querySelector('.p').value);
+      const cOk = c > 0 && c <= 1, pOk = p > 0;
+      mark(r.querySelector('.c'), !cOk); mark(r.querySelector('.p'), !pOk);
+      if (!cOk || !pOk) rowErr = true;
+      else outcomes.push({ label: r.querySelector('.lbl').value.trim() || `Outcome ${i + 1}`, chance: c, payout: p, i });
+    });
+    if (rowErr) errs.push('Each outcome needs a chance (5%, 0.05 or 1 in 20) and a payout (250 or 2.5k).');
+
+    let cushion = 0;
+    if (kind !== 'bet') {
+      cushion = $('f-cushion').value.trim() ? W.parseMoney($('f-cushion').value) : NaN;
+      mark($('f-cushion'), !(cushion >= 0)); if (!(cushion >= 0)) errs.push('Enter a surprise bill you could handle, for example 2,000.');
+    }
+    $('errors').textContent = errs.join(' ');
+    return errs.length ? null : { kind, price, plays, outcomes, cushion };
+  }
+
+  function update() {
+    const d = read();
+    if (!d) return;
+    if (d.empty) { drawEmpty(); return; }
+    const r = W.evaluate(d);
+    if (r.chancesTooHigh) {
+      $('errors').textContent = `These chances add up to ${pct(r.totalChance)}. Outcomes here are separate events, so together they cannot pass 100%.`;
+    }
+    drawVerdict(d, r);
+    drawBar(d, r);
+    drawReceipt(d, r);
+    drawChart(d, r);
+    saveOwn();
+  }
+
+  // ------------------------------------------------------------- drawing
+  function drawEmpty() {
+    $('verdict').className = 'verdict empty';
+    $('verdict').innerHTML = `<div class="v"><span class="ico" aria-hidden="true">?</span>Your deal</div><p>Fill in what one go costs, and for each thing that could happen, its chance and what it would pay. The answer appears as you type.</p>`;
+    $('track').innerHTML = ''; $('scale').innerHTML = ''; $('pbar-legend').innerHTML = '';
+    $('receipt').innerHTML = `<div class="title">${esc($('f-name').value || 'Your deal')}</div><div class="rl"><span>Waiting for numbers</span><span class="dots"></span><b>…</b></div>`;
+    $('chart').innerHTML = ''; $('legend').innerHTML = '';
+  }
+
+  function drawVerdict(d, r) {
+    const icon = { good: '✓', bad: '✕', mixed: '!' }[r.tone];
+    const rep = d.plays > 1;
+    const totalLoss = r.extraCost * d.plays;
+    let line;
+    if (d.kind === 'bet') {
+      line = `On average you get back ${perDollar(r.perDollar)} for every $1.`;
+      if (!r.worthOnAverage) line += rep
+        ? ` Over ${d.plays.toLocaleString('en-US')} goes you would put in ${money(d.price * d.plays, true)} and expect to lose about ${money(totalLoss, true)}.`
+        : ` Fine as entertainment; just count the ${money(d.price, true)} as the ticket price.`;
+    } else if (r.worthOnAverage) {
+      line = `On average it pays back ${perDollar(r.perDollar)} for every $1.` + (r.canAbsorb ? ' You could also cover this loss yourself, so it is a small win either way.' : ' It also covers a loss bigger than your cushion.');
+    } else if (r.canAbsorb) {
+      line = `On average it pays back ${perDollar(r.perDollar)} for every $1, and a ${money(r.biggest, true)} hit is one you could handle. Keep the ${money(d.price * d.plays, true)}.`;
+    } else {
+      line = `On average it pays back ${perDollar(r.perDollar)} for every $1, so you pay about ${money(totalLoss, true)} more than it returns. But a ${money(r.biggest)} loss is more than your ${money(d.cushion, true)} cushion. That extra buys protection from a loss you could not absorb, which can be the right call.`;
+    }
+    $('verdict').className = 'verdict ' + r.tone;
+    $('verdict').innerHTML = `<div class="v"><span class="ico" aria-hidden="true">${icon}</span>${esc(r.verdict)}</div><p>${esc(line)}</p>`;
+  }
+
+  function drawBar(d, r) {
+    const max = Math.max(d.price, r.expected) * 1.08;
+    let left = 0;
+    let h = '';
+    r.parts.forEach((p, k) => {
+      const w = (100 * p.value) / max;
+      h += `<span class="seg-fill" style="left:${left}%;width:${w}%;background:${OCOL[p.i % OCOL.length]}" title="${esc(p.label)}: ${money(p.value, true)}"></span>`;
+      left += w;
+    });
+    h += `<span class="price" style="left:calc(${(100 * d.price) / max}% - 1.5px)" title="Price ${money(d.price, true)}"></span>`;
+    $('track').innerHTML = h;
+    $('scale').innerHTML = `<span>$0</span><span>Payback ${money(r.expected, true)} · Price ${money(d.price, true)}</span>`;
+    const shown = r.parts.filter((p) => p.value / r.expected >= 0.02);
+    $('pbar-legend').innerHTML =
+      shown.map((p) => `<span><i class="lsw" style="background:${OCOL[p.i % OCOL.length]}"></i>${esc(p.label)} ${money(p.value, true)}</span>`).join('') +
+      (shown.length < r.parts.length ? `<span>Others under 2% each</span>` : '') +
+      `<span><i class="lsw" style="background:var(--ink);width:3px"></i>Price</span>`;
+  }
+
+  function drawReceipt(d, r) {
+    const row = (k, v, small, cls) => `<div class="rl ${cls || ''}"><span>${k}</span><span class="dots"></span><b>${v}</b>${small ? ` <small>${small}</small>` : ''}</div>`;
+    let h = `<div class="title">${esc($('f-name').value || 'Your deal')}</div>`;
+    h += row('You pay, per go', money(d.price, true));
+    for (const p of r.parts) {
+      h += row(esc(p.label), money(p.payout, true), `× ${pct(p.chance)} = ${money(p.value, true)}`, 'sub');
+    }
+    h += `<div class="rule"></div>`;
+    h += `<div class="big">${row('Average payback', money(r.expected, true))}</div>`;
+    h += row('Back per $1', perDollar(r.perDollar));
+    if (r.breakEvenChance !== null) {
+      h += row('Break-even chance', r.breakEvenChance >= 1 ? 'not possible' : pct(r.breakEvenChance), r.breakEvenChance < 1 && r.breakEvenChance >= 1e-4 ? W.oneIn(r.breakEvenChance) : '');
+    } else if (!r.worthOnAverage) {
+      h += row('Fair only if every outcome were', `${r.breakEvenFactor.toFixed(1)}× likelier`);
+    }
+    if (r.parts.length > 1) h += row('Chance of any payout', pct(Math.min(1, r.totalChance)), r.totalChance >= 1e-4 && r.totalChance < 1 ? W.oneIn(r.totalChance) : '');
+    if (d.kind !== 'bet') h += row('Biggest loss vs cushion', r.biggest <= d.cushion ? 'you could cover it' : 'more than you could cover');
+    if (d.plays > 1) {
+      h += `<div class="rule"></div>`;
+      h += row(`Over ${d.plays.toLocaleString('en-US')} goes, you put in`, money(d.price * d.plays, true));
+      h += row('Average back', money(r.expected * d.plays, true));
+      h += `<div class="big">${row(r.extraCost >= 0 ? 'Expected loss' : 'Expected gain', money(Math.abs(r.extraCost * d.plays), true))}</div>`;
+    }
+    $('receipt').innerHTML = h;
+  }
+
+  function drawChart(d, r) {
+    const Wd = 760, H = 380, m = { l: 66, r: 20, t: 18, b: 50 };
+    const lg = Math.log10;
+    const xs = r.parts.map((p) => p.chance);
+    if (r.breakEvenChance !== null && r.breakEvenChance < 1) xs.push(r.breakEvenChance);
+    const x0 = Math.pow(10, Math.floor(lg(Math.min(...xs))) - 1), x1 = 1;
+    const ys = r.parts.map((p) => p.payout).concat([d.price]);
+    if (d.kind !== 'bet' && d.cushion > 0) ys.push(d.cushion);
+    const y0 = Math.pow(10, Math.floor(lg(Math.min(...ys))) - 1);
+    const y1 = Math.pow(10, Math.ceil(lg(Math.max(...ys))) + 1);
+    const X = (v) => m.l + ((lg(v) - lg(x0)) / (lg(x1) - lg(x0))) * (Wd - m.l - m.r);
+    const Y = (v) => H - m.b - ((lg(v) - lg(y0)) / (lg(y1) - lg(y0))) * (H - m.t - m.b);
+    const clampY = (v) => Math.max(y0, Math.min(y1, v));
+    let s = `<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Outcomes plotted by chance and payout against the break-even line">`;
+
+    // Break-even curve: chance x payout = price. Region above = pays back more than the price.
+    const steps = 48, pts = [];
+    for (let i = 0; i <= steps; i++) {
+      const xv = Math.pow(10, lg(x0) + (i / steps) * (lg(x1) - lg(x0)));
+      pts.push([X(xv), Y(clampY(d.price / xv))]);
+    }
+    s += `<polygon points="${pts.map((p) => p.join(',')).join(' ')} ${X(x1)},${Y(y1)} ${X(x0)},${Y(y1)}" fill="var(--good-wash)"/>`;
+
+    if (d.kind !== 'bet' && d.cushion > y0 && d.cushion < y1) {
+      s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${Y(d.cushion)}" y2="${Y(d.cushion)}" stroke="var(--mixed)" stroke-width="2" stroke-dasharray="6 5"/>`;
+      s += `<text x="${Wd - m.r - 4}" y="${Y(d.cushion) - 6}" text-anchor="end" style="fill:var(--ink-2)">Your cushion ${money(d.cushion)}: losses above this would hurt</text>`;
+    }
+
+    const xd = Math.round(lg(x1) - lg(x0)), yd = Math.round(lg(y1) - lg(y0));
+    const xStep = xd > 6 ? 2 : 1, yStep = yd > 6 ? 2 : 1;
+    for (let e = Math.round(lg(x0)); e <= 0; e += xStep) {
+      const v = Math.pow(10, e);
+      s += `<line x1="${X(v)}" x2="${X(v)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--grid)"/>`;
+      s += `<text class="num" x="${X(v)}" y="${H - m.b + 17}" text-anchor="middle">${tickChance(v)}</text>`;
+    }
+    for (let e = Math.round(lg(y0)); e <= Math.round(lg(y1)); e += yStep) {
+      const v = Math.pow(10, e);
+      s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/>`;
+      s += `<text class="num" x="${m.l - 8}" y="${Y(v) + 4}" text-anchor="end">${money(v)}</text>`;
+    }
+    s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+    s += `<line x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+    s += `<text x="${(m.l + Wd - m.r) / 2}" y="${H - 10}" text-anchor="middle">Chance</text>`;
+    s += `<text transform="translate(15 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">Payout</text>`;
+
+    s += `<polyline points="${pts.map((p) => p.join(',')).join(' ')}" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+    const lab = pts.find((p, i) => i > steps * 0.55 && p[1] < H - m.b - 20 && p[1] > m.t + 20) || pts[Math.floor(steps * 0.3)];
+    s += `<text x="${lab[0] + 8}" y="${lab[1] - 8}" style="fill:var(--ink);font-weight:700">Break-even for ${money(d.price, true)}</text>`;
+
+    // Single outcome: show the break-even chance at its payout.
+    if (r.parts.length === 1 && r.breakEvenChance < 1) {
+      const p = r.parts[0];
+      s += `<line x1="${X(p.chance)}" x2="${X(r.breakEvenChance)}" y1="${Y(p.payout)}" y2="${Y(p.payout)}" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+      s += `<circle cx="${X(r.breakEvenChance)}" cy="${Y(p.payout)}" r="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>`;
+    }
+    // Outcomes.
+    r.parts.forEach((p) => {
+      const cx = X(p.chance), cy = Y(p.payout);
+      s += `<g class="pt" data-k="${p.i}"><circle cx="${cx}" cy="${cy}" r="16" fill="transparent"/>` +
+        `<circle cx="${cx}" cy="${cy}" r="${r.parts.length === 1 ? 10 : 8}" fill="${OCOL[p.i % OCOL.length]}" stroke="var(--surface)" stroke-width="2.5"/></g>`;
+    });
+    if (r.parts.length === 1) {
+      const p = r.parts[0], cx = X(p.chance), cy = Y(p.payout), right = cx < Wd * 0.62;
+      s += `<text x="${cx + (right ? 16 : -16)}" y="${cy - 14}" text-anchor="${right ? 'start' : 'end'}" style="fill:var(--ink);font-weight:700;font-size:13px">This deal: ${perDollar(r.perDollar)} back per $1</text>`;
+    }
+    s += `<text x="${Wd - m.r - 6}" y="${m.t + 16}" text-anchor="end" style="fill:var(--good);font-weight:700">Above the line: pays back more than the price</text>`;
+    s += `</svg>`;
+    $('chart').innerHTML = s;
+
+    // Hover details.
+    const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; $('chart').appendChild(tip);
+    $('chart').querySelectorAll('.pt').forEach((g) => {
+      const p = r.parts.find((q) => q.i === +g.dataset.k);
+      g.addEventListener('mousemove', (e) => {
+        tip.innerHTML = `<b>${esc(p.label)}</b><br><span class="k">Chance</span> ${pct(p.chance)}${p.chance >= 1e-4 ? ' (' + W.oneIn(p.chance) + ')' : ''}<br><span class="k">Pays</span> ${money(p.payout, true)}<br><span class="k">Adds to payback</span> ${money(p.value, true)}`;
+        tip.hidden = false;
+        const b = $('chart').getBoundingClientRect();
+        let x = e.clientX - b.left + 14; if (x + tip.offsetWidth > b.width) x = e.clientX - b.left - tip.offsetWidth - 14;
+        tip.style.left = Math.max(0, x) + 'px'; tip.style.top = (e.clientY - b.top + 14) + 'px';
+      });
+      g.addEventListener('mouseleave', () => { tip.hidden = true; });
+    });
+
+    $('legend').innerHTML = r.parts.map((p) => `<span><i class="lsw" style="background:${OCOL[p.i % OCOL.length]}"></i>${esc(p.label)}</span>`).join('') +
+      `<span><i class="lsw" style="background:var(--good-wash);border:1px solid var(--good)"></i>Pays back more than the price</span>` +
+      (d.kind !== 'bet' ? `<span><i class="lsw" style="border-top:2px dashed var(--mixed);height:0;border-radius:0"></i>Your cushion</span>` : '');
+  }
+
+  // ------------------------------------------------------------- events
+  $('f-kind').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    setKind(b.dataset.v); markEdited(); update();
+  });
+  $('add').addEventListener('click', () => {
+    const rows = snapshot().o; rows.push(['', '', '']);
+    renderOutcomeRows(rows); markEdited(); update();
+    $('o-l-' + (rows.length - 1)).focus();
+  });
+  $('outcomes').addEventListener('click', (e) => {
+    const b = e.target.closest('.x'); if (!b || b.disabled) return;
+    const rows = snapshot().o; rows.splice(+b.dataset.i, 1);
+    renderOutcomeRows(rows); markEdited(); update();
+  });
+  $('form').addEventListener('input', (e) => { if (e.target.id !== 'f-name') markEdited(); update(); });
+  $('form').addEventListener('submit', (e) => e.preventDefault());
+
+  // Editing a preset turns it into your own deal (the preset itself stays intact).
+  function markEdited() {
+    if (current === 'own') return;
+    current = 'own';
+    document.querySelectorAll('.ex').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === 'own')));
+    $('tip').hidden = true;
+  }
+
+  // ============================================================ question types
+  // "Protection or a bet" uses the chance form above. The other four share
+  // one simple form built from the field lists below.
+  const TYPES = [
+    { id: 'chance', title: 'Protection or a bet', sub: 'Warranties, insurance, travel add-ons, lottery, slots' },
+    { id: 'sub', title: 'A subscription', sub: 'Gym, streaming, memberships, clubs' },
+    { id: 'buy', title: 'Buying something', sub: 'Tools, gear, anything you could rent or pay for each time' },
+    { id: 'loan', title: 'Pawning or a quick loan', sub: 'Pawn shop, payday loan, cash advance, pay later' },
+    { id: 'invest', title: 'A degree or upgrade', sub: 'Degree, course, certificate, solar panels' },
+  ];
+
+  // Field kinds: money ($1,200, 2.5k), num (plain number), rate (22%, 0.22).
+  const FIELDS = {
+    sub: [
+      { id: 'price', label: 'Price per month', kind: 'money', ph: '40' },
+      { id: 'uses', label: 'Times you use it per month', kind: 'num', ph: '3', hint: 'Be honest: most people overestimate this.' },
+      { id: 'altPrice', label: 'What each use would cost without it', kind: 'money', ph: '15', wide: true, hint: 'A day pass, a rental, or what it saves you each time.' },
+    ],
+    buy: [
+      { id: 'price', label: 'Price', kind: 'money', ph: '150' },
+      { id: 'resale', label: 'What you could sell it for later', kind: 'money', ph: '0', optional: true },
+      { id: 'years', label: 'Years you will keep it', kind: 'num', ph: '5' },
+      { id: 'uses', label: 'Times you will use it per year', kind: 'num', ph: '6' },
+      { id: 'altPrice', label: 'Cost of each use another way', kind: 'money', ph: '25', wide: true, hint: 'Renting it, borrowing it, or paying for the service each time.' },
+    ],
+    loan: [
+      { id: 'get', label: 'Cash you get', kind: 'money', ph: '150' },
+      { id: 'payBack', label: 'Total you pay back', kind: 'money', ph: '240', hint: 'The cash plus every fee.' },
+      { id: 'days', label: 'Days until you pay it back', kind: 'num', ph: '90' },
+      { id: 'altRate', label: 'Yearly rate of your cheapest other option', kind: 'rate', ph: '22%', hint: 'A credit card is often around 22%. 0% if family would lend it.' },
+      { id: 'itemValue', label: 'Pawn only: what the item is worth to you', kind: 'money', ph: '600', optional: true },
+      { id: 'chanceLose', label: 'Pawn only: chance you cannot pay it back', kind: 'rate', ph: '20%', optional: true, hint: 'Then you keep the cash, owe nothing, and lose the item.' },
+    ],
+    invest: [
+      { id: 'upfront', label: 'Upfront cost', kind: 'money', ph: '100k', hint: 'Tuition, fees, equipment, installation.' },
+      { id: 'yearsToFinish', label: 'Years to finish', kind: 'num', ph: '4' },
+      { id: 'lostIncomePerYear', label: 'Income you give up per year while doing it', kind: 'money', ph: '30k', optional: true },
+      { id: 'extraPerYear', label: 'Extra income or savings per year after', kind: 'money', ph: '25k' },
+      { id: 'chance', label: 'Chance it works out', kind: 'rate', ph: '60%', hint: 'That you finish and the extra money actually shows up.' },
+      { id: 'benefitYears', label: 'Years you will benefit', kind: 'num', ph: '40' },
+      { id: 'discount', label: 'Count future dollars less by, per year', kind: 'rate', ph: '3%', wide: true, hint: 'Money now can grow, so a dollar later is worth a bit less. 3% is a common choice; 0% turns it off.' },
+    ],
+  };
+
+  const PRESETS = {
+    sub: [
+      { id: 'gym', chip: 'Gym membership', name: 'Gym membership', v: { price: '40', uses: '3', altPrice: '15' }, tip: 'A $15 day pass is the other way to go. At 3 visits a month the membership just wins.' },
+      { id: 'stream', chip: 'Streaming service', name: 'Streaming service', v: { price: '15.49', uses: '2', altPrice: '5' }, tip: 'Two films a month, against renting each for $5.' },
+      { id: 'club', chip: 'Warehouse club', name: 'Warehouse club, $65 a year', v: { price: '5.42', uses: '1', altPrice: '4' }, tip: '$65 a year is $5.42 a month. Each trip saves about $4 against a normal store.' },
+      { id: 'audio', chip: 'Audiobook plan', name: 'Audiobook plan, one credit a month', v: { price: '15', uses: '1', altPrice: '25' }, tip: 'Only worth it if you really use the credit every month.' },
+    ],
+    buy: [
+      { id: 'drill', chip: 'Cordless drill', name: 'Cordless drill', v: { price: '150', resale: '30', years: '5', uses: '6', altPrice: '25' }, tip: 'Renting one costs about $25 a day.' },
+      { id: 'washer', chip: 'Pressure washer', name: 'Pressure washer', v: { price: '300', resale: '50', years: '8', uses: '2', altPrice: '60' }, tip: '' },
+      { id: 'espresso', chip: 'Espresso machine', name: 'Espresso machine', v: { price: '600', resale: '100', years: '5', uses: '300', altPrice: '4' }, tip: 'Each café drink costs about $4 more than making it at home.' },
+      { id: 'tux', chip: 'Tuxedo', name: 'Tuxedo', v: { price: '400', resale: '0', years: '3', uses: '1', altPrice: '150' }, tip: 'Renting costs about $150 a time.' },
+    ],
+    loan: [
+      { id: 'pawn', chip: 'Pawn a guitar', name: 'Pawning a guitar', v: { get: '150', payBack: '240', days: '90', altRate: '22%', itemValue: '600', chanceLose: '20%' }, tip: 'Pawn fees vary a lot by state; this is illustrative.' },
+      { id: 'payday', chip: 'Payday loan', name: 'Payday loan', v: { get: '400', payBack: '460', days: '14', altRate: '22%', itemValue: '', chanceLose: '' }, tip: '$15 per $100 for two weeks, the typical fee the CFPB cites.' },
+      { id: 'advance', chip: 'Credit card cash advance', name: 'Credit card cash advance', v: { get: '500', payBack: '535', days: '30', altRate: '22%', itemValue: '', chanceLose: '' }, tip: 'A 5% fee plus about 25% a year in interest for a month.' },
+      { id: 'bnpl', chip: 'Pay in 4', name: 'Pay in 4, no interest', v: { get: '400', payBack: '400', days: '42', altRate: '22%', itemValue: '', chanceLose: '' }, tip: 'Free if every payment is on time. Late fees change that fast.' },
+    ],
+    invest: [
+      { id: 'degree', chip: "Bachelor's degree", name: "Bachelor's degree", v: { upfront: '100k', yearsToFinish: '4', lostIncomePerYear: '30k', extraPerYear: '25k', chance: '60%', benefitYears: '40', discount: '3%' },
+        tip: 'Earnings gains vary hugely by field and school, and many students do not finish. Put in numbers for your field.' },
+      { id: 'cert', chip: 'Trade certificate', name: 'Trade certificate, evenings', v: { upfront: '3,000', yearsToFinish: '0.25', lostIncomePerYear: '0', extraPerYear: '6,000', chance: '70%', benefitYears: '30', discount: '3%' }, tip: '' },
+      { id: 'bootcamp', chip: 'Coding bootcamp', name: 'Full-time coding bootcamp', v: { upfront: '15k', yearsToFinish: '0.5', lostIncomePerYear: '40k', extraPerYear: '20k', chance: '50%', benefitYears: '25', discount: '3%' }, tip: '' },
+      { id: 'solar', chip: 'Solar panels', name: 'Home solar panels', v: { upfront: '15k', yearsToFinish: '0', lostIncomePerYear: '0', extraPerYear: '1,500', chance: '100%', benefitYears: '25', discount: '3%' }, tip: 'Savings depend on your sunshine, power prices and any credits.' },
+    ],
+  };
+
+  const HOW = {
+    sub: ['<b>price ÷ uses</b> = cost per use', '<b>price ÷ other price</b> = uses you need to break even', '<b>uses × other price</b> = what those uses would cost you otherwise'],
+    buy: ['<b>(price − resale) ÷ total uses</b> = cost per use', '<b>(price − resale) ÷ other price</b> = uses you need to break even', '<b>uses × other price</b> = what renting or paying each time would cost'],
+    loan: ['<b>(pay back − get) ÷ get × 365 ÷ days</b> = yearly rate', '<b>get × other rate × days ÷ 365</b> = what the same money costs elsewhere', '<b>chance × item value</b> = what the risk of losing the item costs, on average'],
+    invest: ['<b>chance × extra per year</b> = expected gain per year', '<b>total cost ÷ expected gain</b> = years to pay back', '<b>sum of every year\'s gain, counted a little less each year</b> = where you end up'],
+  };
+  const GUARD = {
+    sub: ['Uses are the whole answer, and people tend to overestimate them. Check your last three months.', 'Cancelling costs nothing, so a subscription you stopped using is easy to fix.'],
+    buy: ['Owning has hidden extras: storage, repairs, batteries. Renting has trips and time.', 'If you would not use it at least the break-even number of times, rent or borrow.'],
+    loan: ['36% a year is the cap many US states and the Military Lending Act use for consumer loans. Anything far above it is very expensive money.', 'Rules on pawn loans vary by state. Usually, if you do not repay, you lose the item and owe nothing more.'],
+    invest: ['Averages hide big differences. Pay attention to the field, the school, and whether people like you usually finish.', 'This counts money only. Satisfaction, health and options matter too, and no calculator can weigh those for you.'],
+  };
+
+  let type = 'chance';
+  let gcurrent = null;
+  const CHANCE_TITLE = $('chart-title').textContent, CHANCE_NOTE = $('chart-note').textContent;
+
+  $('types').innerHTML = TYPES.map((t) =>
+    `<button type="button" class="type" data-t="${t.id}" aria-pressed="false"><b>${esc(t.title)}</b><span>${esc(t.sub)}</span></button>`).join('');
+
+  function renderPicker() {
+    let h = `<div class="group"><span class="eyebrow">Your numbers</span><div class="chips"><button type="button" class="ex own" data-id="own" aria-pressed="false">+ Your own</button></div></div>`;
+    const groups = type === 'chance' ? GROUPS : [{ name: 'Common examples', items: PRESETS[type] }];
+    h += groups.map((g) => `
+      <div class="group"><span class="eyebrow">${esc(g.name)}</span>
+        <div class="chips">${g.items.map((e) => `<button type="button" class="ex" data-id="${e.id}" aria-pressed="false">${esc(e.chip)}</button>`).join('')}</div>
+      </div>`).join('');
+    $('picker').innerHTML = h;
+  }
+
+  function setType(t, first) {
+    type = t;
+    document.querySelectorAll('.type').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.t === t)));
+    const chance = t === 'chance';
+    $('form').hidden = !chance; $('gform').hidden = chance;
+    $('pbar-card').hidden = !chance;
+    $('how-chance').hidden = !chance; $('how-other').hidden = chance;
+    renderPicker();
+    try { localStorage.setItem('worth-type', t); } catch (e) { /* storage unavailable */ }
+    if (chance) {
+      $('chart-title').textContent = CHANCE_TITLE; $('chart-note').textContent = CHANCE_NOTE;
+      load(first || 'tv');
+    } else {
+      renderGFields();
+      gload(first || PRESETS[t][0].id);
+    }
+  }
+
+  function renderGFields() {
+    $('gfields').innerHTML = FIELDS[type].map((f) => `
+      <div class="field ${f.wide ? 'wide' : ''}">
+        <label for="g-${f.id}">${esc(f.label)}${f.optional ? ' <span class="opt">optional</span>' : ''}</label>
+        <input id="g-${f.id}" type="text" autocomplete="off" placeholder="${esc(f.ph)}" ${f.kind === 'rate' ? '' : 'inputmode="decimal"'}>
+        ${f.hint ? `<span class="hint">${esc(f.hint)}</span>` : ''}
+      </div>`).join('');
+    $('how-other').innerHTML = `<h2>How the answer is worked out</h2>
+      <div class="how">${HOW[type].map((f) => `<p class="formula">${f}</p>`).join('')}</div>
+      <div><span class="eyebrow">Keep in mind</span><ul style="margin-top:8px">${GUARD[type].map((g) => `<li>${esc(g)}</li>`).join('')}</ul></div>`;
+  }
+
+  const ownKey = () => 'worth-own-' + type;
+  function gload(id) {
+    let e;
+    if (id === 'own') {
+      e = { name: '', v: {}, tip: '' };
+      try { const s = JSON.parse(localStorage.getItem(ownKey()) || 'null'); if (s && s.v) e = s; } catch (err) { /* storage unavailable */ }
+    } else {
+      e = PRESETS[type].find((p) => p.id === id);
+    }
+    gcurrent = id;
+    $('g-name').value = e.name || '';
+    for (const f of FIELDS[type]) $('g-' + f.id).value = e.v[f.id] ?? '';
+    document.querySelectorAll('#picker .ex').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+    $('gtip').textContent = e.tip || ''; $('gtip').hidden = !e.tip;
+    gupdate();
+    if (id === 'own') $('g-name').focus();
+  }
+
+  function gread() {
+    const vals = {}, errs = [];
+    const all = FIELDS[type].map((f) => $('g-' + f.id).value.trim());
+    if (all.every((v) => !v)) { $('gerrors').textContent = ''; document.querySelectorAll('#gform input.bad').forEach((i) => i.classList.remove('bad')); return { empty: true }; }
+    for (const f of FIELDS[type]) {
+      const el = $('g-' + f.id), text = el.value.trim();
+      let v;
+      if (!text && f.optional) v = 0;
+      else if (f.kind === 'money') v = W.parseMoney(text);
+      else if (f.kind === 'rate') v = text === '0' || text === '0%' ? 0 : W.parseChance(text);
+      else v = Number(text.replace(/,/g, ''));
+      const zeroOk = f.optional || f.kind === 'rate' || ['yearsToFinish', 'lostIncomePerYear'].includes(f.id);
+      const ok = Number.isFinite(v) && (zeroOk ? v >= 0 : v > 0) && (f.kind !== 'rate' || v <= 1);
+      el.classList.toggle('bad', !ok);
+      if (!ok) errs.push(`Check "${f.label}".`);
+      vals[f.id] = v;
+    }
+    if (type === 'loan' && !errs.length && vals.payBack < vals.get) { errs.push('"Total you pay back" should be at least the cash you get.'); $('g-payBack').classList.add('bad'); }
+    if (type === 'invest' && !errs.length && vals.chance === 0) { errs.push('"Chance it works out" must be above 0%.'); $('g-chance').classList.add('bad'); }
+    $('gerrors').textContent = errs.join(' ');
+    return errs.length ? null : vals;
+  }
+
+  function gupdate() {
+    const v = gread();
+    if (!v) return;
+    if (v.empty) {
+      $('verdict').className = 'verdict empty';
+      $('verdict').innerHTML = `<div class="v"><span class="ico" aria-hidden="true">?</span>Your numbers</div><p>Fill in the boxes on the left. The answer appears as you type.</p>`;
+      $('receipt').innerHTML = `<div class="title">${esc($('g-name').value || 'Your decision')}</div><div class="rl"><span>Waiting for numbers</span><span class="dots"></span><b>…</b></div>`;
+      $('chart').innerHTML = ''; $('legend').innerHTML = '';
+      return;
+    }
+    if (type === 'sub' || type === 'buy') drawUse(v);
+    else if (type === 'loan') drawLoan(v);
+    else drawInvest(v);
+    if (gcurrent === 'own') {
+      const snap = { name: $('g-name').value, v: Object.fromEntries(FIELDS[type].map((f) => [f.id, $('g-' + f.id).value])), tip: '' };
+      try { localStorage.setItem(ownKey(), JSON.stringify(snap)); } catch (e) { /* storage unavailable */ }
+    }
+  }
+
+  // Shared bits for the four simple types.
+  const row = (k, val, small, cls) => `<div class="rl ${cls || ''}"><span>${k}</span><span class="dots"></span><b>${val}</b>${small ? ` <small>${small}</small>` : ''}</div>`;
+  function setVerdict(tone, verdict, line) {
+    const icon = { good: '✓', bad: '✕', mixed: '!' }[tone];
+    $('verdict').className = 'verdict ' + tone;
+    $('verdict').innerHTML = `<div class="v"><span class="ico" aria-hidden="true">${icon}</span>${esc(verdict)}</div><p>${esc(line)}</p>`;
+  }
+  const toneCol = (t) => ({ good: 'var(--good)', bad: 'var(--bad)', mixed: 'var(--mixed)' }[t]);
+  const num = (v, d = 1) => (Math.abs(v - Math.round(v)) < 1e-9 ? Math.round(v).toLocaleString('en-US') : v.toFixed(d));
+  // Tick values: about five steps of 1, 2 or 5 times a power of ten.
+  function niceTicks(max, count = 5) {
+    const raw = max / count, p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 5, 10].map((k) => k * p).find((s) => s >= raw);
+    const out = [];
+    for (let t = 0; t <= max + 1e-9; t += step) out.push(+t.toFixed(10));
+    return out;
+  }
+  const title = () => esc($('g-name').value || 'Your decision');
+
+  // ---------------------------------------------- subscriptions and purchases
+  function drawUse(v) {
+    const buy = type === 'buy';
+    const r = W.evaluateUse({ mode: buy ? 'buy' : 'sub', price: v.price, resale: v.resale, years: v.years, uses: v.uses, altPrice: v.altPrice });
+    const per = buy ? `over ${num(v.years)} year${v.years === 1 ? '' : 's'}` : 'a month';
+    const usesWord = buy ? `${num(r.totalUses)} uses ${per}` : `${num(v.uses)} uses a month`;
+    const line = r.worth
+      ? `Each use costs you ${money(r.costPerUse, true)}, against ${money(v.altPrice, true)} another way. You break even at ${num(r.breakEvenUses)} uses ${buy ? 'in total' : 'a month'}, and at ${usesWord} you save about ${money(r.saving, true)} ${per}.`
+      : `Each use costs you ${money(r.costPerUse, true)}, against ${money(v.altPrice, true)} another way. You would need ${num(r.breakEvenUses)} uses ${buy ? 'in total' : 'a month'} to break even; at ${usesWord} it costs about ${money(-r.saving, true)} more ${per}.`;
+    setVerdict(r.tone, r.verdict, line);
+
+    let h = `<div class="title">${title()}</div>`;
+    h += row(buy ? 'Price' : 'Price per month', money(v.price, true));
+    if (buy && v.resale) h += row('Minus resale later', money(v.resale, true));
+    h += row(buy ? 'Uses in total' : 'Uses per month', num(r.totalUses), buy ? `${num(v.uses)} a year × ${num(v.years)}` : '');
+    h += `<div class="rule"></div>`;
+    h += `<div class="big">${row('Cost per use', money(r.costPerUse, true))}</div>`;
+    h += row('Each use another way', money(v.altPrice, true));
+    h += row('Break-even uses', num(r.breakEvenUses), buy ? 'in total' : 'a month');
+    h += row(r.saving >= 0 ? `You save, ${per}` : `It costs you extra, ${per}`, money(Math.abs(r.saving), true));
+    $('receipt').innerHTML = h;
+
+    // Chart: cost per use = cost ÷ uses, a hyperbola, against the flat price of the other way.
+    $('chart-title').textContent = 'Cost per use falls as you use it more';
+    $('chart-note').textContent = 'The curve is the cost divided by the number of uses. Where it drops below the flat line (the price of each use another way), owning or subscribing starts to win. That crossing is the break-even point.';
+    const Wd = 760, H = 360, m = { l: 66, r: 20, t: 18, b: 50 };
+    const xmax = Math.max(r.totalUses * 1.8, r.breakEvenUses * 2, 4);
+    const ymax = Math.max(v.altPrice * 2.5, r.costPerUse * 1.4);
+    const X = (u) => m.l + (u / xmax) * (Wd - m.l - m.r);
+    const Y = (c) => H - m.b - (c / ymax) * (H - m.t - m.b);
+    const curve = [];
+    const u0 = Math.max(r.netCost / ymax, xmax / 400);
+    for (let i = 0; i <= 120; i++) { const u = u0 + (i / 120) * (xmax - u0); curve.push([u, r.netCost / u]); }
+    let s = `<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Cost per use against number of uses">`;
+    for (const t of niceTicks(ymax)) { s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)"/><text class="num" x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${money(t, true)}</text>`; }
+    for (const t of niceTicks(xmax, 6)) { s += `<text class="num" x="${X(t)}" y="${H - m.b + 17}" text-anchor="middle">${num(t)}</text>`; }
+    // Region where it wins: between the flat line and the curve, right of break-even.
+    if (r.breakEvenUses < xmax) {
+      const win = curve.filter(([u]) => u >= r.breakEvenUses);
+      const poly = [[r.breakEvenUses, v.altPrice], ...win, [xmax, v.altPrice]];
+      s += `<polygon points="${poly.map(([u, c]) => `${X(u)},${Y(c)}`).join(' ')}" fill="var(--good-wash)"/>`;
+    }
+    s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+    s += `<line x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+    s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${Y(v.altPrice)}" y2="${Y(v.altPrice)}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 5"/>`;
+    s += `<text x="${Wd - m.r - 4}" y="${Y(v.altPrice) - 8}" text-anchor="end" style="fill:var(--accent-2);font-weight:700">Each use another way: ${money(v.altPrice, true)}</text>`;
+    s += `<polyline points="${curve.map(([u, c]) => `${X(u).toFixed(1)},${Y(c).toFixed(1)}`).join(' ')}" fill="none" stroke="var(--ink)" stroke-width="2.5"/>`;
+    if (r.breakEvenUses < xmax) {
+      s += `<line x1="${X(r.breakEvenUses)}" x2="${X(r.breakEvenUses)}" y1="${Y(v.altPrice)}" y2="${H - m.b}" stroke="var(--ink-2)" stroke-dasharray="2 3"/>`;
+      s += `<circle cx="${X(r.breakEvenUses)}" cy="${Y(v.altPrice)}" r="5" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>`;
+      s += `<text x="${X(r.breakEvenUses) + 8}" y="${H - m.b - 8}" style="fill:var(--ink-2);font-weight:700">Break-even: ${num(r.breakEvenUses)} uses</text>`;
+    }
+    const px = X(r.totalUses), py = Y(Math.min(ymax, r.costPerUse)), right = px < Wd * 0.6;
+    s += `<circle cx="${px}" cy="${py}" r="10" fill="${toneCol(r.tone)}" stroke="var(--surface)" stroke-width="3"/>`;
+    s += `<text x="${px + (right ? 16 : -16)}" y="${py - 14}" text-anchor="${right ? 'start' : 'end'}" style="fill:var(--ink);font-weight:700;font-size:13px">You: ${money(r.costPerUse, true)} a use</text>`;
+    s += `<text x="${(m.l + Wd - m.r) / 2}" y="${H - 10}" text-anchor="middle">${buy ? `Total uses over ${num(v.years)} years` : 'Uses per month'}</text>`;
+    s += `<text transform="translate(15 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">Cost per use</text>`;
+    $('chart').innerHTML = s + '</svg>';
+    $('legend').innerHTML = `<span><i class="lsw" style="background:var(--ink);height:3px"></i>Cost per use</span>` +
+      `<span><i class="lsw" style="border-top:2px dashed var(--accent);height:0;border-radius:0"></i>Each use another way</span>` +
+      `<span><i class="lsw" style="background:var(--good-wash);border:1px solid var(--good)"></i>Where it wins</span>`;
+  }
+
+  // ---------------------------------------------- loans
+  function drawLoan(v) {
+    const r = W.evaluateLoan(v);
+    const pawn = v.itemValue > 0 && v.chanceLose > 0;
+    let line = `This money costs ${pct(r.apr)} a year. Getting ${money(v.get, true)} for ${num(v.days)} days costs ${money(r.fee, true)} in fees; the same money at ${pct(v.altRate)} would cost about ${money(r.altCost, true)}.`;
+    if (pawn) line += ` Counting a ${pct(v.chanceLose)} chance of losing the ${money(v.itemValue, true)} item, the expected cost is ${money(r.expectedCost, true)}.`;
+    if (r.apr === 0) line = `No fee if you pay on time: ${money(v.get, true)} now, ${money(v.payBack, true)} back. A missed payment usually brings a late fee, which changes the answer fast.`;
+    setVerdict(r.apr === 0 ? 'good' : r.tone, r.apr === 0 ? 'Free if you pay on time' : r.verdict, line);
+
+    let h = `<div class="title">${title()}</div>`;
+    h += row('Cash you get', money(v.get, true));
+    h += row('You pay back', money(v.payBack, true), `after ${num(v.days)} days`);
+    h += row('Fees', money(r.fee, true));
+    h += `<div class="rule"></div>`;
+    h += `<div class="big">${row('Yearly rate', pct(r.apr))}</div>`;
+    h += row(`Same money at ${pct(v.altRate)}`, money(r.altCost, true));
+    if (pawn) {
+      h += row('If you cannot repay', `lose ${money(v.itemValue, true)} item`, `worth ${money(r.forfeitLoss, true)} more than the cash`);
+      h += row('Expected cost, all in', money(r.expectedCost, true));
+    }
+    $('receipt').innerHTML = h;
+
+    // Chart: yearly rates side by side.
+    $('chart-title').textContent = 'What this money costs per year';
+    $('chart-note').textContent = 'Short loans hide their price because the fee looks small. Turning the fee into a yearly rate lets you compare it with a credit card, a bank loan, or the 36% cap many US laws use.';
+    const bars = [
+      { label: 'This deal', v: r.apr, col: toneCol(r.apr === 0 ? 'good' : r.tone) },
+      { label: 'Common legal cap', v: 0.36, col: 'var(--muted)' },
+      { label: 'Your other option', v: v.altRate, col: 'var(--accent)' },
+    ];
+    const Wd = 760, H = 220, m = { l: 150, r: 70, t: 14, b: 34 };
+    const max = Math.max(...bars.map((b) => b.v), 0.4) * 1.05;
+    const X = (x) => m.l + (x / max) * (Wd - m.l - m.r);
+    const bh = 34, gap = 22;
+    let s = `<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Yearly rate compared">`;
+    for (const t of niceTicks(max, 5)) s += `<line x1="${X(t)}" x2="${X(t)}" y1="${m.t}" y2="${H - m.b}" stroke="var(--grid)"/><text class="num" x="${X(t)}" y="${H - m.b + 17}" text-anchor="middle">${pct(t)}</text>`;
+    bars.forEach((b, i) => {
+      const y = m.t + 8 + i * (bh + gap);
+      s += `<text x="${m.l - 12}" y="${y + bh / 2 + 5}" text-anchor="end" style="fill:var(--ink);font-size:14px;font-weight:700">${esc(b.label)}</text>`;
+      s += `<rect x="${m.l}" y="${y}" width="${Math.max(2, X(b.v) - m.l)}" height="${bh}" rx="4" fill="${b.col}"/>`;
+      s += `<text class="num" x="${X(b.v) + 8}" y="${y + bh / 2 + 5}" style="fill:var(--ink);font-size:13px">${pct(b.v)}</text>`;
+    });
+    s += `<line x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}" stroke="var(--axis)"/>`;
+    $('chart').innerHTML = s + '</svg>';
+    $('legend').innerHTML = '';
+  }
+
+  // ---------------------------------------------- investments
+  function drawInvest(v) {
+    const r = W.evaluateInvest(v);
+    const pays = r.paybackAt !== null;
+    const line = pays
+      ? `Total cost ${money(r.cost, true)}. Expected gain ${money(r.gainPerYear, true)} a year (${pct(v.chance)} × ${money(v.extraPerYear, true)}). Counting later dollars ${pct(v.discount)} less a year, you are back to even in year ${r.paybackAt} and end about ${money(r.net)} ahead.`
+      : `Total cost ${money(r.cost, true)}. Expected gain ${money(r.gainPerYear, true)} a year (${pct(v.chance)} × ${money(v.extraPerYear, true)}). Over ${num(v.benefitYears)} years it never gets back to even; you end about ${money(-r.net)} behind.`;
+    setVerdict(r.tone, r.verdict, line);
+
+    let h = `<div class="title">${title()}</div>`;
+    h += row('Upfront cost', money(v.upfront, true));
+    if (v.lostIncomePerYear && v.yearsToFinish) h += row('Income given up', money(v.lostIncomePerYear * v.yearsToFinish, true), `${num(v.yearsToFinish, 2)} yrs × ${money(v.lostIncomePerYear)}`);
+    h += row('Total cost', money(r.cost, true));
+    h += `<div class="rule"></div>`;
+    h += row('Expected gain a year', money(r.gainPerYear, true), `${pct(v.chance)} × ${money(v.extraPerYear)}`);
+    h += `<div class="big">${row('Simple payback', r.paybackYears === Infinity ? 'never' : `${num(r.paybackYears)} yrs`)}</div>`;
+    h += row('Even again, counting later dollars less', pays ? `year ${r.paybackAt}` : 'not within the years given');
+    h += row(r.net >= 0 ? 'Ahead at the end' : 'Behind at the end', money(Math.abs(r.net)));
+    $('receipt').innerHTML = h;
+
+    // Chart: running total by year.
+    $('chart-title').textContent = 'Where you stand, year by year';
+    $('chart-note').textContent = 'You start behind by the full cost. Once you finish, each year adds the expected gain, counted a little less the further out it is. Where the line crosses zero, it has paid for itself.';
+    const Wd = 760, H = 340, m = { l: 74, r: 20, t: 18, b: 46 };
+    const T = r.timeline, last = T[T.length - 1].year;
+    const ymin = Math.min(...T.map((p) => p.total)), ymaxv = Math.max(0, ...T.map((p) => p.total));
+    const pad = (ymaxv - ymin) * 0.08 || 1;
+    const lo = ymin - pad, hi = ymaxv + pad;
+    const X = (y) => m.l + (y / last) * (Wd - m.l - m.r);
+    const Y = (d) => H - m.b - ((d - lo) / (hi - lo)) * (H - m.t - m.b);
+    let s = `<svg viewBox="0 0 ${Wd} ${H}" role="img" aria-label="Running total by year">`;
+    const span = hi - lo, raw = span / 5, p10 = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 5, 10].map((k) => k * p10).find((q) => q >= raw);
+    for (let t = Math.ceil(lo / step) * step; t <= hi; t += step) {
+      s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--grid)"/><text class="num" x="${m.l - 8}" y="${Y(t) + 4}" text-anchor="end">${t < 0 ? '−' : ''}${money(Math.abs(t))}</text>`;
+    }
+    for (const t of niceTicks(last, 8)) s += `<text class="num" x="${X(t)}" y="${H - m.b + 17}" text-anchor="middle">${num(t)}</text>`;
+    const pts = T.map((p) => `${X(p.year).toFixed(1)},${Y(p.total).toFixed(1)}`).join(' ');
+    s += `<polygon points="${X(0)},${Y(0)} ${pts} ${X(last)},${Y(0)}" fill="${r.net >= 0 ? 'var(--good-wash)' : 'var(--bad-wash)'}"/>`;
+    s += `<line x1="${m.l}" x2="${Wd - m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--ink)" stroke-width="1.5"/>`;
+    s += `<text x="${m.l + 6}" y="${Y(0) - 6}" style="fill:var(--ink-2);font-weight:700">Even</text>`;
+    s += `<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`;
+    if (pays) {
+      const px = X(r.paybackAt), py = Y(T[r.paybackAt].total);
+      s += `<circle cx="${px}" cy="${py}" r="7" fill="var(--good)" stroke="var(--surface)" stroke-width="2.5"/>`;
+      s += `<text x="${px + 10}" y="${py + 20}" style="fill:var(--ink);font-weight:700;font-size:13px">Paid off in year ${r.paybackAt}</text>`;
+    }
+    s += `<text x="${(m.l + Wd - m.r) / 2}" y="${H - 8}" text-anchor="middle">Years from now</text>`;
+    $('chart').innerHTML = s + '</svg>';
+    $('legend').innerHTML = `<span><i class="lsw" style="background:var(--accent);height:3px"></i>Running total, later dollars counted less</span>`;
+  }
+
+  // ---------------------------------------------- events for types
+  $('types').addEventListener('click', (e) => { const b = e.target.closest('.type'); if (b && b.dataset.t !== type) setType(b.dataset.t); });
+  $('picker').addEventListener('click', (e) => {
+    const b = e.target.closest('.ex'); if (!b) return;
+    if (type === 'chance') load(b.dataset.id); else gload(b.dataset.id);
+  });
+  $('gform').addEventListener('input', (e) => {
+    if (e.target.id !== 'g-name' && gcurrent !== 'own') {
+      gcurrent = 'own';
+      document.querySelectorAll('#picker .ex').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.id === 'own')));
+      $('gtip').hidden = true;
+    }
+    gupdate();
+  });
+  $('gform').addEventListener('submit', (e) => e.preventDefault());
+
+  let startType = 'chance';
+  try { startType = localStorage.getItem('worth-type') || 'chance'; } catch (e) { /* storage unavailable */ }
+  if (!TYPES.some((t) => t.id === startType)) startType = 'chance';
+  setType(startType);
+})();
+</script>
+<script src="art.js"></script>

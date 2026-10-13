@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>How systems work (draft)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap">
+<!-- DRAFT, 2026-10-11. A page about systems, not about money: what goes in, what the
+     system does, what comes out, and what happens when those three cross.
+     Not listed in build-site.js, so it is not on the live site. Open it straight from the folder.
+     Same layout rules as the front page draft: full width, proportions of 1 to 1.618,
+     gaps of 8, 13, 21, 34, 55, 89, and a colour for each panel. -->
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #0b1120; --panel: #131c31; --ink: #f8fafc; --ink-2: #cbd5e1; --muted: #94a3b8; --line: #263349;
+    --c: #14b8a6;
+    --s1: 8px; --s2: 13px; --s3: 21px; --s4: 34px; --s5: 55px; --s6: 89px;
+    --display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font: 17px/1.55 var(--body);
+    background:
+      radial-gradient(60vw 50vh at 100% -10%, rgba(57, 135, 229, 0.22), transparent 62%),
+      radial-gradient(50vw 50vh at 0% 10%, rgba(25, 158, 112, 0.18), transparent 62%),
+      radial-gradient(60vw 60vh at 40% 110%, rgba(144, 133, 233, 0.16), transparent 62%),
+      var(--page);
+    background-attachment: fixed;
+  }
+  p, h1, h2, h3 { margin: 0; }
+  a { color: var(--ink); text-underline-offset: 3px; }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--c); outline-offset: 2px; }
+  .hint { font-size: 14px; color: var(--muted); }
+  .top { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s3); align-items: center; justify-content: space-between; }
+  .top .brand { font: 800 19px var(--display); text-decoration: none; }
+  .top nav { display: flex; flex-wrap: wrap; gap: var(--s1); }
+  .top nav a { font: 700 15px var(--body); text-decoration: none; color: var(--ink-2); padding: 8px 16px; border-radius: 999px; border: 1px solid transparent; }
+  .top nav a:hover { border-color: var(--line); color: var(--ink); }
+  .top nav a[aria-current="page"] { background: rgba(255, 255, 255, 0.08); border-color: var(--line); color: var(--ink); }
+  .page { padding: clamp(21px, 4vw, 55px); display: grid; gap: var(--s6); max-width: 1760px; margin: 0 auto; }
+  .page > * { min-width: 0; }
+
+  /* ── Opening row: 1 : 1.618 ───────────────────────────────────────────── */
+  .hero { display: grid; grid-template-columns: 1fr 1.618fr; gap: var(--s5); align-items: center; min-height: min(64vh, 700px); }
+  .hero > * { min-width: 0; }
+  .say { display: grid; gap: var(--s3); }
+  .eyebrow { font: 700 13px var(--body); letter-spacing: 0.14em; text-transform: uppercase; color: #2dd4bf; }
+  h1 { font: 800 clamp(40px, 4.6vw, 72px)/1.02 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+  h1 em { font-style: normal; background: linear-gradient(100deg, #3987e5, #2dd4bf 50%, #9085e9); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h2 { font: 800 clamp(27px, 2.8vw, 44px)/1.08 var(--display); letter-spacing: -0.01em; text-wrap: balance; }
+  .lede { font-size: clamp(18px, 1.5vw, 22px); color: var(--ink-2); max-width: 36ch; }
+  .three { display: flex; flex-wrap: wrap; gap: var(--s1); align-items: center; font: 700 15px var(--body); color: var(--ink-2); }
+  .three span { border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; background: rgba(255, 255, 255, 0.04); }
+  .three i { font-style: normal; color: var(--muted); }
+  .three small { font-weight: 500; color: var(--muted); margin-left: 6px; }
+
+  /* ── The toy ──────────────────────────────────────────────────────────── */
+  .toy {
+    display: grid; gap: var(--s3); padding: var(--s4); border-radius: var(--s4);
+    border: 1px solid color-mix(in srgb, var(--c) 45%, var(--line));
+    background: linear-gradient(150deg, color-mix(in srgb, var(--c) 20%, var(--panel)), var(--panel) 62%);
+    box-shadow: 0 34px 89px -34px color-mix(in srgb, var(--c) 55%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+  }
+  .toy h2 { font-size: 27px; }
+  .toy-grid { display: grid; grid-template-columns: 1fr 1.618fr; gap: var(--s4); }
+  .toy-grid > * { min-width: 0; }
+  .controls { display: grid; gap: var(--s3); align-content: start; }
+  input[type="text"] { font: 600 17px var(--body); color: var(--ink); width: 100%; padding: 10px 12px; border-radius: var(--s2); border: 1px solid var(--line); background: rgba(11, 17, 32, 0.7); }
+  .ctl { display: grid; gap: var(--s1); }
+  .ctl-top { display: flex; justify-content: space-between; gap: var(--s2); font-weight: 600; color: var(--ink-2); }
+  .ctl-top b { color: var(--ink); }
+  input[type="range"] { width: 100%; accent-color: var(--c); height: 21px; }
+  .seg { display: flex; flex-wrap: wrap; gap: var(--s1); }
+  .seg button, .switch {
+    font: 700 14px var(--body); color: var(--ink); cursor: pointer; padding: 9px 14px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--c) 45%, var(--line)); background: color-mix(in srgb, var(--c) 10%, transparent);
+    transition: transform 0.15s, background 0.15s;
+  }
+  .seg button:hover, .switch:hover:not(:disabled) { transform: translateY(-2px); }
+  .seg button[aria-pressed="true"], .switch[aria-pressed="true"] { background: var(--c); border-color: var(--c); color: #0b1120; }
+  .switch:disabled { opacity: 0.35; cursor: default; }
+  .result { display: grid; gap: var(--s2); align-content: start; padding: var(--s3); border-radius: var(--s3); background: rgba(11, 17, 32, 0.55); border: 1px solid var(--line); }
+  .result svg { width: 100%; height: auto; display: block; }
+  .shape-name { font: 800 clamp(24px, 2vw, 34px)/1.1 var(--display); color: var(--c); filter: brightness(1.25); }
+
+  /* ── Colour cards ─────────────────────────────────────────────────────── */
+  .block { display: grid; gap: var(--s3); }
+  .block-head { display: grid; grid-template-columns: 1fr 1.618fr; gap: var(--s5); align-items: end; }
+  .block-head p { color: var(--ink-2); max-width: 60ch; }
+  .cards { display: grid; gap: var(--s3); }
+  .cards.five { grid-template-columns: repeat(5, 1fr); }
+  .cards.four { grid-template-columns: repeat(4, 1fr); }
+  .card {
+    display: grid; gap: var(--s2); align-content: start; padding: var(--s3); border-radius: var(--s3); min-width: 0;
+    border: 1px solid color-mix(in srgb, var(--c) 50%, var(--line));
+    background: linear-gradient(165deg, color-mix(in srgb, var(--c) 30%, var(--panel)), var(--panel) 70%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover { transform: translateY(-5px); box-shadow: 0 21px 55px -21px var(--c), inset 0 1px 0 rgba(255, 255, 255, 0.07); }
+  .card svg { width: 100%; height: auto; max-height: 144px; display: block; }
+  .card h3 { font: 800 20px/1.2 var(--display); }
+  .card h3 small { display: block; font: 600 13px var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--c); filter: brightness(1.35); margin-top: 3px; }
+  .card p, .card li { color: var(--ink-2); font-size: 15px; }
+  .card p b { color: var(--ink); }
+  .card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s2); }
+  .card li b { display: block; color: var(--ink); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .big { font-size: 34px; line-height: 1; }
+
+  .more summary { cursor: pointer; font: 700 17px var(--body); color: var(--ink-2); padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: 999px; width: fit-content; list-style: none; }
+  .more summary::-webkit-details-marker { display: none; }
+  .more summary::before { content: '+ '; color: #2dd4bf; }
+  .more[open] summary::before { content: '- '; }
+  .more-in { display: grid; gap: var(--s6); padding-top: var(--s5); }
+  .foot { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); justify-content: space-between; border-top: 1px solid var(--line); padding-top: var(--s3); }
+  .foot a { color: var(--ink-2); }
+
+  @media (max-width: 1180px) {
+    .hero, .block-head { grid-template-columns: 1fr; min-height: 0; gap: var(--s3); }
+    .lede { max-width: 60ch; }
+    .cards.five, .cards.four { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  }
+  @media (max-width: 720px) {
+    .toy { padding: var(--s3); border-radius: var(--s3); }
+    .toy-grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="page">
+
+  <div class="top">
+    <a class="brand" href="home-draft.html">Cost of Saving</a>
+    <nav aria-label="Sections"><a href="home-draft.html">Decide</a><a href="system-draft.html" aria-current="page">Systems</a><a href="formulas.html">Formulas</a><a href="feedback.html">Feedback</a></nav>
+  </div>
+
+  <header class="hero">
+    <div class="say">
+      <span class="eyebrow">How systems work</span>
+      <h1>Find what goes in, what does the work, and <em>what comes out.</em></h1>
+      <p class="lede">Every system has those three parts: a toaster, a forest, a business, a town. Most trouble starts when one is taken for another, or when two separate things are counted as one. Sort yours here.</p>
+      <p class="three"><span>In <small>a thing or a value</small></span><i>&rarr;</i><span>System <small>a verb</small></span><i>&rarr;</i><span>Out <small>the product</small></span></p>
+    </div>
+
+    <section class="toy" id="sort" aria-label="Sort one thing into input, system or output">
+      <h2>Which of the three is it?</h2>
+      <div class="toy-grid">
+        <div class="controls">
+          <label class="ctl"><span class="ctl-top">Name one thing in your system</span><input type="text" id="thing" value="Payroll" autocomplete="off"></label>
+          <div class="ctl"><span class="ctl-top">Is it what you were trying to end up with?</span>
+            <div class="seg" id="q-wanted" role="group"><button type="button" data-v="yes">Yes</button><button type="button" data-v="no">No</button></div></div>
+          <div class="ctl" id="q-remains-wrap"><span class="ctl-top">After the work is done, is it still there, ready to do it again?</span>
+            <div class="seg" id="q-remains" role="group"><button type="button" data-v="yes">Yes</button><button type="button" data-v="no">No</button></div></div>
+          <div class="ctl"><span class="ctl-top">Or try one of these</span>
+            <div class="seg" id="things" role="group" aria-label="Examples"></div></div>
+        </div>
+        <div class="result">
+          <div id="sort-pic"></div>
+          <p class="shape-name" id="sort-name" aria-live="polite"></p>
+          <p id="sort-line" style="color: var(--ink-2)"></p>
+          <p id="sort-watch" style="color: var(--ink-2)"></p>
+          <p class="hint" id="sort-note"></p>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <section class="block" aria-labelledby="clean-title">
+    <div class="block-head">
+      <h2 id="clean-title">Five things that keep the output clean</h2>
+      <p>Getting the three right is the start. A system gives a clean, steady result when all five of these hold.</p>
+    </div>
+    <div class="cards five">
+      <div class="card" style="--c: #3987e5"><span class="big" aria-hidden="true">1</span><h3>The three stay separate<small>and so do things that only look like one</small></h3><p>If one can change while the other stays the same, they are two things. A wage bill can fall while the people stay. The people can change while the wage bill stays.</p></div>
+      <div class="card" style="--c: #199e70"><span class="big" aria-hidden="true">2</span><h3>What comes out goes back in as input<small>never into the works</small></h3><p>A result can feed the next round, or another system. Trouble starts when the result is made the thing that directs the work.</p></div>
+      <div class="card" style="--c: #9085e9"><span class="big" aria-hidden="true">3</span><h3>Something checks it against where it should be<small>and corrects the gap</small></h3><p>A result that comes back and pushes against a change steadies the system. One that adds to the change makes it run away.</p></div>
+      <div class="card" style="--c: #c98500"><span class="big" aria-hidden="true">4</span><h3>The check arrives in time<small>late news overshoots</small></h3><p>A correction based on how things were a while ago pushes too far, then pulls back too far.</p></div>
+      <div class="card" style="--c: #e66767"><span class="big" aria-hidden="true">5</span><h3>What goes in fits what the system takes<small>and is checked inside as well as at the door</small></h3><p>An input the system cannot use produces nothing. One that looks right and changes how the system works is the harder case.</p></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="wire-title">
+    <div class="block-head">
+      <h2 id="wire-title">Wire it right, wire it wrong</h2>
+      <p>What goes in is a thing or a value. What comes out is the product. What sits between them is a verb: it does something. Put a thing where the verb belongs and watch the curve come apart.</p>
+    </div>
+    <div class="toy" id="wire" style="--c: #199e70">
+      <div class="toy-grid">
+        <div class="controls">
+          <label class="ctl"><span class="ctl-top">What goes in <b>a value</b></span><input type="text" id="w-input" inputmode="decimal" value="10"></label>
+          <label class="ctl"><span class="ctl-top">What you expect out <b>the product</b></span><input type="text" id="w-expected" inputmode="decimal" value="20"></label>
+          <div class="ctl"><span class="ctl-top">What does the work <b>the verb</b></span>
+            <div class="seg" id="w-wiring" role="group" aria-label="What does the work">
+              <button type="button" data-w="engine">A separate engine</button>
+              <button type="button" data-w="input">The input</button>
+              <button type="button" data-w="result">The result</button>
+            </div></div>
+          <div id="w-flow"></div>
+        </div>
+        <div class="result">
+          <div id="w-land"></div>
+          <p class="shape-name" id="w-name" aria-live="polite"></p>
+          <p id="w-line" style="color: var(--ink-2)"></p>
+          <p class="hint" id="w-nums"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="run-title">
+    <div class="block-head">
+      <h2 id="run-title">Watch one run</h2>
+      <p>Set what goes in, how hard the system works on it, and where the output goes. The chart shows what comes out, step by step.</p>
+    </div>
+    <section class="toy" id="toy" aria-label="A toy system to build">
+            <div class="toy-grid">
+        <div class="controls">
+          <label class="ctl"><span class="ctl-top">What goes in <b id="v-input"></b></span><input type="range" id="input" min="0" max="10" step="1" value="5"></label>
+          <label class="ctl"><span class="ctl-top">What the system does to it <b id="v-strength"></b></span><input type="range" id="strength" min="0.5" max="2" step="0.1" value="1"></label>
+          <div class="ctl"><span class="ctl-top">Where the output goes</span>
+            <div class="seg" id="loop" role="group" aria-label="Where the output goes">
+              <button type="button" data-loop="none">Nowhere</button>
+              <button type="button" data-loop="steadying">Back, to steady it</button>
+              <button type="button" data-loop="compounding">Back, to add to it</button>
+            </div>
+          </div>
+          <div class="ctl"><span class="ctl-top">Switches</span>
+            <div class="seg">
+              <button type="button" class="switch" id="delay">It reacts late</button>
+              <button type="button" class="switch" id="limit">There is a ceiling</button>
+              <button type="button" class="switch" id="upkeep">It is kept up</button>
+            </div>
+          </div>
+        </div>
+        <div class="result">
+          <div id="chart"></div>
+          <p class="shape-name" id="shape-name" aria-live="polite"></p>
+          <p id="shape-line" style="color: var(--ink-2)"></p>
+          <p class="hint" id="shape-nums"></p>
+          <p class="hint">A toy with made-up numbers. It shows the shape each arrangement makes, not a forecast of anything.</p>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <section class="block" aria-labelledby="shape-title">
+    <div class="block-head">
+      <h2 id="shape-title">Three shapes a system can take</h2>
+      <p>Picture a system as a landscape and its state as a ball. The ball rests in a hollow. A system holds steady because of a curve; a flat one holds nothing in place. The even curve is the steadiest of the three. The other two are that same curve leaned over, or turned over in the middle.</p>
+    </div>
+    <div class="toy" id="land" style="--c: #199e70">
+      <div class="toy-grid">
+        <div class="controls">
+          <label class="ctl"><span class="ctl-top">One middle, or two sides <b id="v-split"></b></span><input type="range" id="split" min="-1" max="1" step="0.1" value="-1"></label>
+          <label class="ctl"><span class="ctl-top">Level, or leaning <b id="v-tilt"></b></span><input type="range" id="tilt" min="-0.6" max="0.6" step="0.05" value="0"></label>
+          <label class="ctl"><span class="ctl-top">Where the ball is let go <b id="v-start"></b></span><input type="range" id="start" min="-2" max="2" step="0.1" value="1.4"></label>
+          <div class="seg" id="presets" role="group" aria-label="Examples">
+            <button type="button" data-split="-1" data-tilt="0">Even</button>
+            <button type="button" data-split="-1" data-tilt="0.4">Lopsided</button>
+            <button type="button" data-split="1" data-tilt="0">Split</button>
+          </div>
+        </div>
+        <div class="result">
+          <div id="land-chart"></div>
+          <p class="shape-name" id="land-name" aria-live="polite"></p>
+          <p id="land-line" style="color: var(--ink-2)"></p>
+          <p class="hint" id="land-nums"></p>
+        </div>
+      </div>
+    </div>
+    <div class="cards" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))">
+      <div class="card" style="--c: #199e70"><h3>Even<small>one hollow, in the middle</small></h3><p>The shape of an arch or a bowl. The further it is pushed, the harder it is pulled back, and equally from either side. So small errors cancel instead of building up.</p><p><b>Good for</b> anything meant to hold steady. <b>Costs</b> nothing but the upkeep.</p></div>
+      <div class="card" style="--c: #c98500"><h3>Lopsided<small>the same hollow, pulled to one side</small></h3><p>The bowl with one wall lower than the other. It still rests, but off centre, and it gives more easily one way than the other.</p><p><b>Good for</b> a valve or a ratchet, which are meant to favour one direction. <b>In something meant to be balanced</b> it is a distortion: one side moves the whole more easily than the other can move it back.</p></div>
+      <div class="card" style="--c: #d55181"><h3>Split<small>the middle turned over</small></h3><p>The bowl with its middle turned over. Two hollows, a hump between them, and nowhere to rest in the centre.</p><p><b>Good for</b> a switch, which must be fully one thing or the other. <b>In something meant to agree</b> it depends how deep. A shallow split has a low hump that is easily crossed, and the two sides still work as one. A deep split has a high one, no common ground, and each side holds the other in place.</p></div>
+      <div class="card" style="--c: #9085e9"><h3>All three, in a piece of iron<small>where the shapes can be seen</small></h3><p>Hot iron is even: its parts point every way and it has no direction. Cooled, it is split: it must settle as north one way or the other. Hold a magnet near and it is lopsided, pulled to one side. The two poles that result are equal and opposite, so for all their pull they add up to nothing.</p></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="cross-title">
+    <div class="block-head">
+      <h2 id="cross-title">Five things that can cross between them</h2>
+      <p>Most of what makes a system interesting happens when one of the three ends up where another belongs. Four of these are how systems work. The fifth is a mix-up.</p>
+    </div>
+    <div class="cards five" id="cross"></div>
+  </section>
+
+  <details class="more">
+    <summary>More: the same patterns in four worlds, and five things worth knowing</summary>
+    <div class="more-in">
+  <section class="block" aria-labelledby="worlds-title">
+    <div class="block-head">
+      <h2 id="worlds-title">The same patterns, in four worlds</h2>
+      <p>The structure is the same wherever something builds up and feeds back. What changes is how well it can be predicted: exactly in a machine, and least of all where people can see the pattern and change what they do.</p>
+    </div>
+    <div class="cards four">
+      <div class="card" style="--c: #3987e5"><span class="big" aria-hidden="true">⚙️</span><h3>Machines<small>predictable</small></h3><ul>
+        <li><b>Steadies</b>A thermostat switching the heat off as the room warms.</li>
+        <li><b>Compounds</b>A microphone squealing into its own speaker.</li>
+        <li><b>The mix-up</b>Skipping maintenance because the machine is still running.</li></ul></div>
+      <div class="card" style="--c: #199e70"><span class="big" aria-hidden="true">🌱</span><h3>Nature<small>predictable when measured</small></h3><ul>
+        <li><b>Steadies</b>Your body holding its temperature on a hot day.</li>
+        <li><b>Compounds</b>Melting ice baring dark water, which takes in more heat.</li>
+        <li><b>The mix-up</b>Catching the fish that breed, not only the year's surplus.</li></ul></div>
+      <div class="card" style="--c: #c98500"><span class="big" aria-hidden="true">🏪</span><h3>Trade<small>people react to the forecast</small></h3><ul>
+        <li><b>Steadies</b>A price rising until fewer people want the thing.</li>
+        <li><b>Compounds</b>Interest earned on interest already earned.</li>
+        <li><b>The mix-up</b>Dropping training because the work is still getting done.</li></ul></div>
+      <div class="card" style="--c: #9085e9"><span class="big" aria-hidden="true">🏘️</span><h3>People<small>hardest to predict</small></h3><ul>
+        <li><b>Steadies</b>A raised eyebrow bringing someone back into line.</li>
+        <li><b>Compounds</b>A rumour spreading faster the more people have heard it.</li>
+        <li><b>The mix-up</b>Closing the place where neighbours met and got to know each other.</li></ul></div>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="know-title">
+    <div class="block-head">
+      <h2 id="know-title">Five things worth knowing</h2>
+      <p>None of these is about any one kind of system. Each is something that tends to be missed.</p>
+    </div>
+    <div class="cards five">
+      <div class="card" style="--c: #3987e5"><span class="big" aria-hidden="true">⏳</span><h3>Systems store things<small>so effects arrive late</small></h3><p>Skill, trust, stock and heat all sit inside a system and drain slowly. That is why a change can look fine for a long time before its effect shows.</p></div>
+      <div class="card" style="--c: #9085e9"><span class="big" aria-hidden="true">📈</span><h3>Nothing compounds forever<small>every curve bends</small></h3><p>A loop that feeds itself always meets a limit sooner or later: room, fuel, customers, patience.</p></div>
+      <div class="card" style="--c: #199e70"><span class="big" aria-hidden="true">🎲</span><h3>Part of what comes in cannot be predicted<small>so some slack is needed</small></h3><p>Work, weather and demand arrive unevenly. Spare room that looks idle on an average day is what absorbs a busy one.</p></div>
+      <div class="card" style="--c: #c98500"><span class="big" aria-hidden="true">🕯️</span><h3>An absence is not a force<small>cold is heat leaving</small></h3><p>Darkness does not spread; light is missing. When nothing comes out, look first at what is not going in.</p></div>
+      <div class="card" style="--c: #e66767"><span class="big" aria-hidden="true">🔄</span><h3>Swap the person, keep the system<small>a quick test</small></h3><p>Would another capable person in the same seat, with the same information, have done the same? If so, the system produced the result.</p></div>
+    </div>
+  </section>
+    </div>
+  </details>
+
+  <footer class="foot hint">
+    <span>A way of looking at things, with a toy to try it on. Not a prediction. Nothing you type is sent anywhere. Visits are counted, without cookies. <a href="disclaimer.html">Disclaimer</a></span>
+    <span><a href="home-draft.html">Cost of Saving</a> &middot; <a href="why.html">Why costs multiply</a> &middot; <a href="formulas.html">The formulas</a> &middot; <a href="feedback.html">Feedback</a></span>
+  </footer>
+
+</div>
+
+<script src="system-toy.js"></script>
+<script src="system-draft-page.js"></script>
+</html>

@@ -1,0 +1,10 @@
+# Built or downloaded: made again by the build
+node_modules/
+site/
+.wrangler/
+
+# Drafts of articles and replies, not part of the site
+writing/
+
+# The settings file that holds the address feedback is sent to. wrangler.example.jsonc shows its shape.
+wrangler.jsonc

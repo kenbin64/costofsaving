@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>The Formulas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap">
+<style>
+  [hidden] { display: none !important; }
+  img { max-width: 100%; }
+  /* Cost of Saving: dark dashboard palette. A single dark look by design, so
+     there are no light values and no theme switch. */
+  :root {
+    color-scheme: dark;
+    --page: #0f172a;          /* page background (slate 900) */
+    --surface: #1e293b;       /* cards and input wrappers (slate 800) */
+    --paper: #0f172a;         /* inside inputs and inset panels */
+    --ink: #f8fafc;           /* headings, callouts, key values */
+    --ink-2: #cbd5e1;         /* running text */
+    --muted: #94a3b8;         /* labels, descriptions, supporting copy */
+    --grid: #2a3a52;
+    --axis: #475569;
+    --line: #334155;          /* card borders */
+    --accent: #14b8a6;        /* active states, highlights, main buttons (teal 500) */
+    --accent-2: #2dd4bf;      /* teal used as text and on hover, light enough to read on slate */
+    --on-accent: #0f172a;
+    --good: #22c55e;  --good-wash: rgba(34, 197, 94, 0.15);  --good-text: #86efac;
+    --bad: #ef4444;   --bad-wash: rgba(239, 68, 68, 0.15);   --bad-text: #fca5a5;
+    --mixed: #f59e0b; --mixed-wash: rgba(245, 158, 11, 0.15); --mixed-text: #fcd34d;
+    --chip: #273449;
+    /* Chart series. The first two are the pair used side by side; checked for
+       colour-blind separation and contrast against the card colour. */
+    --o1: #3987e5; --o2: #d95926; --o3: #199e70; --o4: #c98500;
+    --o5: #d55181; --o6: #5fae3c; --o7: #9085e9; --o8: #e66767;
+    --display: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+  /* Layout: a reference document. One column, numbered formulas, tables that scroll inside their own box. */
+  body { background: var(--page); color: var(--ink); font: 17px/1.55 var(--body); padding-inline: 16px; padding-block: 28px 56px; margin: 0; }
+  .wrap { max-width: 900px; margin: 0 auto; display: grid; gap: 26px; }
+  p { margin: 0; }
+  header { display: grid; gap: 10px; }
+  h1 { font: 800 clamp(36px, 6.4vw, 62px)/0.98 var(--display); font-stretch: 112%; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+  h2 { font: 800 24px/1.15 var(--display); font-stretch: 112%; margin: 0; text-wrap: balance; }
+  h3 { font: 700 17px/1.3 var(--body); margin: 6px 0 0; }
+  .lede { font-size: 19px; color: var(--ink-2); max-width: 64ch; }
+  a { color: var(--accent-2); }
+  a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .sitenav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sitenav a { font: 700 15px var(--body); color: var(--ink-2); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; background: var(--surface); }
+  .sitenav a:hover { border-color: var(--accent); }
+  .sitenav a[aria-current="page"] { background: var(--ink); color: var(--page); border-color: var(--ink); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 24px; display: grid; gap: 14px; min-width: 0; }
+  .prose { display: grid; gap: 12px; max-width: 70ch; color: var(--ink-2); }
+  .prose b { color: var(--ink); }
+  .tablewrap { overflow-x: auto; min-width: 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  th { font: 700 12px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  td.sym, td.num { font-family: var(--mono); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.num { text-align: right; }
+  th.num { text-align: right; }
+  .f { display: grid; grid-template-columns: 3.2em minmax(0, 1fr); gap: 4px 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--grid); }
+  .f:last-child { border-bottom: 0; }
+  .f .n { font: 600 14px var(--mono); color: var(--muted); padding-top: 3px; }
+  .f .eq { font: 500 16px/1.6 var(--mono); overflow-x: auto; white-space: pre; min-width: 0; }
+  .f .why { grid-column: 2; font-size: 15px; color: var(--ink-2); }
+  .steps { display: grid; gap: 0; }
+  .step { display: grid; grid-template-columns: 3.2em minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--grid); }
+  .step .n { font: 600 14px var(--mono); color: var(--muted); }
+  .step .w { font: 500 15px/1.5 var(--mono); overflow-wrap: anywhere; min-width: 0; }
+  .step .w small { display: block; font: 400 14px var(--body); color: var(--ink-2); }
+  .step .r { font: 600 16px var(--mono); white-space: nowrap; text-align: right; }
+  .step.total { border-top: 2px solid var(--axis); font-weight: 700; }
+  @media (max-width: 560px) { .step { grid-template-columns: 2.6em minmax(0, 1fr); } .step .r { grid-column: 2; text-align: left; } }
+  .list { display: grid; gap: 8px; padding-left: 20px; margin: 0; color: var(--ink-2); max-width: 72ch; }
+  .list b { color: var(--ink); }
+  code { font: 500 15px var(--mono); background: var(--paper); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; }
+  .cmd { font: 500 15px/1.7 var(--mono); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre; }
+
+  /* ── Dashboard look: applied over the page's own rules ── */
+  h1, h2, h3, .verdict-line, .say { font-stretch: normal; letter-spacing: -0.015em; }
+  .card { border-radius: 12px; }
+  input[type="text"] { color: var(--accent-2); font-weight: 700; font-size: 1.15rem; border-color: var(--line); border-radius: 6px; }
+  input[type="text"]::placeholder { color: var(--muted); font-weight: 500; opacity: 0.75; }
+  input[type="text"]:focus { border-color: var(--accent); }
+  .sitenav a[aria-current="page"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  /* Result banners: a tinted panel with a matching border, per outcome. */
+  .status { border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px 8px 10px; }
+  .status.real, .status.good { border-color: var(--good); color: var(--good-text); }
+  .status.loss, .status.bad { border-color: var(--bad); color: var(--bad-text); }
+  .status.mostly-eaten, .status.mixed { border-color: var(--mixed); color: var(--mixed-text); }
+  .status .ico { color: #0f172a; }
+  .do-line { border: 1px solid var(--good); color: var(--good-text); }
+  .do-line b { color: var(--ink); }
+  .tooltip { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5); }
+
+  /* ── Icons: line drawings that take the colour of their label ── */
+  .ic { width: 18px; height: 18px; flex: none; }
+  .sitenav a { display: inline-flex; align-items: center; gap: 7px; }
+  .ex { display: inline-flex; align-items: center; gap: 7px; }
+/* The four question tabs. */
+  .sitenav a.tab { font-size: 17px; padding: 10px 18px; border-width: 2px; }
+  .sitenav a.tab .tabsub { font-weight: 500; font-size: 14px; opacity: 0.85; }
+  /* On a phone the four questions sit two by two, with the two reference pages under them. */
+  @media (max-width: 560px) {
+    .sitenav { display: grid; grid-template-columns: 1fr 1fr; }
+    .sitenav a { justify-content: center; min-width: 0; }
+    .sitenav a.tab { font-size: 14px; padding: 8px; line-height: 1.2; flex-direction: column; gap: 2px; text-align: center; }
+    .sitenav a.tab .tabsub { font-size: 12px; }
+    .sitenav a.tab .ic { display: none; }
+  }
+  /* Privacy note at the foot of every page. */
+  .privacy { max-width: 1060px; margin: 26px auto 0; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+  .privacy b { color: var(--ink-2); }
+  .privacy a { color: var(--accent-2); }
+</style>
+
+<div class="wrap">
+  <header>
+    <nav class="sitenav" aria-label="The four questions">
+      <a class="tab" href="index.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 7h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>Is it worth it? <span class="tabsub">spending</span></a>
+      <a class="tab" href="saving.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M7 20h10M5 7h14"/><path d="M5 7l-3 6a3 3 0 0 0 6 0z"/><path d="M19 7l-3 6a3 3 0 0 0 6 0z"/></svg>The cost of saving <span class="tabsub">cutting</span></a>
+      <a class="tab" href="gig.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>What am I making? <span class="tabsub">earning</span></a>
+      <a class="tab" href="wait.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>The cost of waiting <span class="tabsub">putting it off</span></a>
+      <a href="why.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Why it multiplies</a>
+      <a href="paper.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>Good on paper</a>
+      <a href="formulas.html" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 5H7l6 7-6 7h10"/></svg>The formulas</a>
+    </nav>
+    <h1>The formulas</h1>
+    <p class="lede">Everything the calculator does, written out: what goes in, every formula, the assumptions, a worked example you can follow with a pocket calculator, and what it leaves out. Nothing is hidden, so the result can be checked by anyone.</p>
+  </header>
+
+  <section class="card">
+    <h2>What this is, and what it is not</h2>
+    <div class="prose">
+      <p>It is a <b>differential analysis</b>, also called incremental or relevant-cost analysis: the business with a change compared with the business without it, counting only what differs. This is a standard management accounting method for decisions such as dropping a product line, outsourcing, or cutting a department.</p>
+      <p>It is <b>not a financial statement</b> and it does not claim financial statements are wrong or that anyone is hiding anything. Companies report what the rules require, bad news included. What the rules do not require is tracing a decision through to everything it later affects. An income statement correctly records what was paid. It records transactions, so it cannot show income that a decision caused not to happen. That is an <b>opportunity cost</b>, which has to be estimated separately. This tool estimates it and puts it beside the saving.</p>
+      <p>Its results are <b>estimates built on the user's own inputs</b>. It is a way to structure a judgement and to find the assumption the answer depends on. It does not predict.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What it looks for</h2>
+    <div class="prose">
+      <p>Costs that are <b>easily dismissed</b>, <b>easily missed</b>, or that rest on a <b>false assumption</b>. None of them is hidden by anyone. They are hidden by where they fall: under another heading, in a later period, or nowhere, because income that is never earned leaves no transaction to record.</p>
+      <p>The commonest false assumption is that <b>labor is a cost</b>. <b>Payroll</b> is the cost, and it is correctly booked as an expense. <b>Labor</b> is what the payroll buys, and what justifies paying it: the work produced, the knowledge behind it, the skills, the training that built them, and the supplies and tools the work uses. The mistake is to read the payroll line as the whole of labor. An expense line shows what a worker costs. No line shows what a worker produces. The calculator applies this to a planned cut, not to a person: it asks what the cut would save and what the work it removes was producing. Remove the expense and the saving appears at once, in full, beside the decision. What it was producing falls away later and is recorded, if at all, as lower sales with no cause attached.</p>
+      <p>The same applies to any resource that feeds income: maintenance, marketing, training, a supplier, a tool. The calculator asks what relied on the thing being cut, and counts that beside the saving.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What is counted, and why</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Item</th><th>Where the books show it</th><th>Why it is counted here</th></tr></thead>
+        <tbody>
+          <tr><td>The saving</td><td>The expense line that falls.</td><td>It is the reason for the decision, and the figure everything else is measured against.</td></tr>
+          <tr><td>One-time cost</td><td>Booked, beside the decision, usually as a one-off or restructuring item.</td><td>A cash cost that exists only because of the decision.</td></tr>
+          <tr><td>Side costs</td><td>Booked, but under other headings and often in later periods: overtime, rework, returns, recruitment.</td><td>They are caused by the decision although nothing in the ledger ties them to it. This is the part most easily missed.</td></tr>
+          <tr><td>Lost contribution</td><td>Not booked. A sale that does not happen is not a transaction.</td><td>It is the opportunity cost, and in a differential analysis an opportunity cost is a relevant cost. This is the part most easily dismissed, because it is an estimate.</td></tr>
+          <tr><td>Expected reversal cost</td><td>Not booked unless the decision is later undone.</td><td>The decision carries the risk from the day it is made. It is entered as probability times cost.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <p><b>What is deliberately not counted.</b> Sunk costs, because they are the same whichever way the decision goes. Fixed overhead that does not change with the decision, for the same reason. Revenue as such: the loss is taken at contribution margin, so the variable costs that fall along with the lost sales are not counted as a loss. And the cost being cut is kept out of that margin, so the saving is not counted twice.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>What goes in</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Symbol</th><th>On screen</th><th>Unit</th><th>Meaning, and the accounting term</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">S</td><td>Expected saving (or gain) each year</td><td>$ / year</td><td>Reduction in operating cost, or added income, expected from the change.</td></tr>
+          <tr><td class="sym">C0</td><td>One-time cost of making the change</td><td>$</td><td>Restructuring or switching cost: severance, penalties, set-up. Paid at the start.</td></tr>
+          <tr><td class="sym">D</td><td>Yearly income that relies on it</td><td>$ / year</td><td>Revenue that could not be earned without the thing being cut.</td></tr>
+          <tr><td class="sym">c</td><td>How much of it you are cutting</td><td>0 to 1</td><td>Share of that resource removed.</td></tr>
+          <tr><td class="sym">s</td><td>How much of the cut was truly spare</td><td>0 to 1</td><td>Idle capacity: the share of what is cut that was producing nothing.</td></tr>
+          <tr><td class="sym">g</td><td>Contribution margin on that income</td><td>0 to 1</td><td>Contribution margin ratio: what is kept from each dollar of D after its other variable costs. It must leave out the cost being cut, or the saving is counted twice.</td></tr>
+          <tr><td class="sym">w1..wn</td><td>What relies on it, and how strongly</td><td>0, 0.5 or 1 each</td><td>One strength for each part of the business marked as relying on it. "Partly" is 0.5, "Fully" is 1. A model assumption; see below.</td></tr>
+          <tr><td class="sym">t0</td><td>Months before the loss shows up</td><td>months</td><td>Lag before lost income begins (orders already in hand, stock, goodwill).</td></tr>
+          <tr><td class="sym">k</td><td>Side costs each year</td><td>$ / year</td><td>Incremental operating costs caused by the change and booked elsewhere: overtime, rework, returns, replacing people who leave.</td></tr>
+          <tr><td class="sym">p</td><td>Chance you have to undo it</td><td>0 to 1</td><td>Probability of reversing the change within the period.</td></tr>
+          <tr><td class="sym">U</td><td>Cost of undoing it</td><td>$</td><td>Cost of reversal: rehiring, retraining, re-contracting.</td></tr>
+          <tr><td class="sym">T</td><td>Look ahead</td><td>months</td><td>Years entered, times 12, rounded to whole months.</td></tr>
+          <tr><td class="sym">r</td><td>Discount rate</td><td>per year</td><td>Cost of capital. 0 gives plain sums; above 0 gives present values.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The formulas</h2>
+    <div>
+      <div class="f"><span class="n">F1</span><span class="eq">a = c x (1 - s)</span><span class="why">Working share cut: what is removed, less the part that was idle.</span></div>
+      <div class="f"><span class="n">F2</span><span class="eq">K = (1 - a x w1) x (1 - a x w2) x ... x (1 - a x wn)</span><span class="why">Share of output kept. Each part that relies on the resource passes on what it received. With one part at full strength, K = 1 - a.</span></div>
+      <div class="f"><span class="n">F3</span><span class="eq">L = 1 - K</span><span class="why">Share of output lost.</span></div>
+      <div class="f"><span class="n">F4</span><span class="eq">O = D x L x g</span><span class="why">Lost contribution each year: the opportunity cost.</span></div>
+      <div class="f"><span class="n">F5</span><span class="eq">Y  = T / 12                               when r = 0
+Y  = sum over m = 1..T of  (1 + r)^(-m/12) / 12</span><span class="why">Years' worth of a level yearly flow over the period. With discounting this is the present value of 1 a year paid monthly in arrears.</span></div>
+      <div class="f"><span class="n">F6</span><span class="eq">YL = max(0, T - t0) / 12                  when r = 0
+YL = sum over m = 1..T of  active(m) x (1 + r)^(-m/12) / 12
+active(m) = min(1, max(0, m - t0))</span><span class="why">The same, for a flow that only starts after the delay.</span></div>
+      <div class="f"><span class="n">F7</span><span class="eq">G = S x Y</span><span class="why">The saving over the period.</span></div>
+      <div class="f"><span class="n">F8</span><span class="eq">one-time cost           = C0
+side costs              = k x Y
+lost contribution       = O x YL
+expected reversal cost  = p x U x (12 / T) x Y        (= p x U when r = 0)</span><span class="why">The four costs. The reversal cost is an expected value, spread evenly across the period.</span></div>
+      <div class="f"><span class="n">F9</span><span class="eq">TC = C0 + k x Y + O x YL + p x U x (12 / T) x Y
+N  = G - TC
+M  = TC / G</span><span class="why">Total cost, net result, and the multiple. N = G x (1 - M). Below M = 1 the saving wins; above it the loss wins.</span></div>
+      <div class="f"><span class="n">F10</span><span class="eq">B = G - C0</span><span class="why">What the books show beside the decision. B - N is the cost that is booked elsewhere or not booked at all.</span></div>
+      <div class="f"><span class="n">F12</span><span class="eq">income supported per dollar saved        = D x c / S
+contribution supported per dollar saved  = D x c x g / S</span><span class="why">What each dollar of the saving was supporting. The cost of a resource is what is paid for it; what it produces is larger, which is why it was worth paying for. When the second figure is above 1, removing the resource loses more than it saves unless enough of it was idle. This is the plainest form of the multiple and uses no model beyond proportional dependence.</span></div>
+      <div class="f"><span class="n">F13</span><span class="eq">idle   = c x s
+R      = G - C0 - k x Y - p x U x (12 / T) x Y
+net(q) = (q / c) x R  -  D x g x YL x L( max(0, q - idle) )
+saving per point        = R / c / 100
+loss per point past idle = D x g x YL x (w1 + w2 + ... + wn) / 100</span><span class="why">The same decision at a different size q. It assumes the idle part is removed first, and that the saving and the other costs scale in proportion to the size of the cut. Cutting only the idle part loses no income. Past it, compare the saving per point with the loss per point: this is ordinary marginal analysis. The best size and the largest size that does not lose are found by trying a thousand sizes between zero and the planned cut. Sizes beyond the plan are not tried, because the scaling assumption cannot be trusted there.</span></div>
+      <div class="f"><span class="n">F11</span><span class="eq">find s* such that   D x g x YL x L(s*) = G - C0 - k x Y - p x U x (12 / T) x Y
+one part, full strength:   s* = 1 - (right-hand side) / (D x g x YL x c)</span><span class="why">Break-even spare share: how much of what is cut must have been idle for the net result to be zero. With several parts it is solved by repeated halving, which is exact to far more digits than are shown.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>A worked example</h2>
+    <div class="prose">
+      <p>The "Lay off staff" example, step by step. These figures are calculated live by the same code the calculator uses, so this section cannot drift out of step with it. The inputs are illustrative round numbers, not data from any company.</p>
+    </div>
+    <div class="tablewrap"><table id="ex-inputs"></table></div>
+    <div class="steps" id="ex-steps"></div>
+  </section>
+
+  <section class="card">
+    <h2>The formulas behind "Why it multiplies"</h2>
+    <div>
+      <div class="f"><span class="n">W1</span><span class="eq">kept = (1 - cut) ^ steps</span><span class="why">Chain. A 10% cut needed at 3 steps keeps 0.9 x 0.9 x 0.9 = 0.729, a loss of 27.1%.</span></div>
+      <div class="f"><span class="n">W2</span><span class="eq">touched at step n = k ^ n
+total             = 1 + k + k^2 + ... + k^n</span><span class="why">Cascade. Each thing affects k others. With k = 3 over 3 steps: 1 + 3 + 9 + 27 = 40.</span></div>
+      <div class="f"><span class="n">W3</span><span class="eq">gain needed = loss / (1 - loss)</span><span class="why">The climb back. Lose 50%, need 100%. Check: 0.5 x (1 + 1.00) = 1.</span></div>
+      <div class="f"><span class="n">W4</span><span class="eq">balance after n years = balance x (1 + rate) ^ n</span><span class="why">Compounding. Applied to a negative balance it deepens it: -100,000 at 10% for 5 years is -161,051.</span></div>
+      <div class="f"><span class="n">W6</span><span class="eq">step n  = first x ratio ^ (n - 1),   ratio below 1
+ceiling = first / (1 - ratio)
+last step worth taking = the last n with  step n &gt; cost of a step</span><span class="why">The rabbit hole. Gains shrink by a fixed ratio, so they approach a ceiling and never pass it. With 40,000 first, a ratio of 0.62 and 8,000 a step: steps gain 40,000, 24,800, 15,376, 9,533, 5,911; stop after step 4; the ceiling is 105,263.</span></div>
+      <div class="f"><span class="n">W7</span><span class="eq">step n = first x ratio ^ (n - 1),    ratio above 1
+total  = first x (ratio ^ n - 1) / (ratio - 1)</span><span class="why">The runaway. Costs grow by a fixed ratio. With 5,000 first and a ratio of 1.62, eight steps total 374,494 and the last alone is 39% of it. The Fibonacci spiral on the page pictures both with a ratio of about 1.618; that number is an illustration, not a property of real costs.</span></div>
+      <div class="f"><span class="n">W5</span><span class="eq">each year:  owed = owed x (1 + rate) - payment
+years to clear = -ln(1 - rate x debt / payment) / ln(1 + rate), rounded up</span><span class="why">Climbing out. Growth is added first, then the payment is made at the year end. If the payment is no more than rate x debt, it never clears. 100,000 at 10% paying 15,000: 12 years, 173,079 paid in all.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The formulas behind the everyday decisions</h2>
+    <div class="prose"><p>The everyday decisions use shorter sums. The working for the figures on screen is shown on that page under "Show the working".</p></div>
+    <div>
+      <div class="f"><span class="n">E1</span><span class="eq">time cost       = hours x value of an hour
+expected risk   = chance it goes wrong x cost if it does
+total cost      = extras + time cost + expected risk
+net             = saved - total cost
+cost per $1     = total cost / saved
+break-even hour value = (saved - extras - expected risk) / hours
+break-even chance     = (saved - extras - time cost) / cost if it does</span><span class="why">An everyday saving. The same structure as F9 with no lost income: extras are the side costs, the risk is the expected reversal cost, and a person's own time is priced at the figure they give. Every figure must cover the same stretch of time. "Worth it, barely" means the cost per $1 is 0.50 or more but under 1.00.</span></div>
+      <div class="f"><span class="n">E7</span><span class="eq">kept          = take-home pay - what the job costs you
+hours given   = paid hours + unpaid hours
+real hourly   = kept / hours given
+stated hourly = take-home pay / paid hours
+other option  = other hourly rate x hours given
+ahead by      = kept - other option
+break-even job costs = take-home pay - other option</span><span class="why">A job, from the worker's side: pay set against what holding the job costs in money and in hours. All figures are for one week. "Close call" means the real hourly rate is within 10% of the other option. It counts money and hours only, not prospects, security or whether the work is liked.</span></div>
+      <div class="f"><span class="n">E8</span><span class="eq">net cost        = price - resale at the end
+cost per month  = net cost / (years x 12)
+cost per use    = net cost / (uses per week x 52 x years)
+worth in all    = worth per month x 12 x years
+years to pay for itself = net cost / (worth per month x 12)
+gone on day one = price - pawn value</span><span class="why">Something you own, such as a television. The worth per month is the person's own figure: what renting one would cost, or the most they would pay. The pawn value is what the item turns back into if cash is needed at once, so price less pawn value is the part that cannot be recovered from the day of purchase. The resale figure is taken as entered whatever the years; in practice it falls the longer a thing is kept. "Close call" means the cost per month is within 10% of the worth per month.</span></div>
+      <div class="f"><span class="n">E9</span><span class="eq">tickets          = people x ticket price
+the day costs    = tickets + travel + food + extras
+per person       = the day costs / people
+per $1 of ticket = the day costs / tickets
+per hour of fun  = the day costs / (people x hours of fun)
+worth to each    = top worth x liking / 10        (when a liking from 1 to 10 is given)
+liking needed    = 10 x cost per person / top worth
+worth in all     = people x worth to each
+most the rest can cost = worth in all - tickets</span><span class="why">A day out. The ticket is the visible price; travel, food and extras are the side costs. Hours of fun are the hours on rides or at the event, not the hours travelling and queuing, and are the person's own estimate. What the day is worth is also the person's own figure, and so is how much they want to go. Taste is treated as an input, not hidden: with a liking given, the worth figure is read as the most they would pay for a 10 out of 10 and scaled in a straight line, and the liking at which cost and worth are level is reported. "Close call" means the cost per person is within 10% of that figure. It prices money and time only, not the memory of the day.</span></div>
+      <div class="f"><span class="n">E10</span><span class="eq">cost later        = cost now x (1 + growth each month) ^ months
+expected later    = (1 - chance) x cost later + chance x cost if it gets worse
+carrying cost     = cost each month meanwhile x months
+earned by waiting = cost now x yearly rate x months / 12
+putting it off costs = expected later + carrying cost - earned by waiting
+waiting costs you    = putting it off costs - cost now
+per $1 put off       = putting it off costs / cost now
+break-even chance = (cost now + earned - carrying cost - cost later) / (cost if worse - cost later)</span><span class="why">Putting something off. Dealing with it now has a known price. Later it costs either what it would have cost, grown at the monthly rate, or the price of the bigger problem; the two are weighted by the chance, which is the person's own estimate. Growth compounds monthly, which is how card interest works and why a delay multiplies. The money not spent is credited with simple interest for the months it is kept. "Waiting costs little" means under a tenth of the cost now. The break-even chance is solved, not searched, and the tests confirm it by putting it back in.</span></div>
+      <div class="f"><span class="n">E11</span><span class="eq">borrowed     = price - down payment
+payment      = borrowed x i / (1 - (1 + i) ^ -n),     i = loan rate / 12,  n = months
+paid in all  = down payment + payment x n + fees
+interest     = payment x n - borrowed
+borrowing, in today's money
+             = down payment + fees + payment x (1 - (1 + s) ^ -n) / s,     s = cash rate / 12
+extra cost of borrowing = borrowing in today's money - price</span><span class="why">Borrow or pay cash. The payment is the standard level-payment loan formula. The payments are brought back to today's money at the rate the cash would earn if kept, which is a present value. The break-even cash rate is the rate at which borrowing and paying cash cost the same: with no fees it is exactly the loan rate, and with fees it is found by repeated halving, since no closed form exists. A second test the sum cannot answer is whether paying cash would leave less than the emergency money wanted; when it would, the answer says so. Tax, and any penalty for early repayment, are left out.</span></div>
+      <div class="f"><span class="n">E13</span><span class="eq">add-ons each      = the add-ons added together
+really costs      = count x (advertised price + add-ons each) + one-off extra
+everything in     = count x the price that includes them
+per $1 advertised = really costs / (count x advertised price)
+room for add-ons  = price that includes them - advertised price - one-off extra / count</span><span class="why">A cheap fare, a room rate, a daily hire rate. The advertised price is for the bare thing, and the bag, the seat, the resort fee and the rest are added afterwards. The sum adds them back and sets the result against the option whose price already includes them. The count is travellers for a flight, nights for a room, days for a car. The tipping point is the most the add-ons can come to before the cheaper-looking option stops being cheaper. Within 5% either way is called a close call. Fee amounts differ by airline, route and date, so none is supplied as fact: the example figures are illustrative.</span></div>
+      <div class="f"><span class="n">E12</span><span class="eq">first way, per year  = price / (years it lasts x chance it lasts) + upkeep a year
+second way, per year = (price - resale at the end) / years it lasts + upkeep a year
+most the first way can cost = (second way per year - first way upkeep) x years x chance it lasts</span><span class="why">Fix it or buy new, and buy new or used. Two ways of having the same thing are compared by what each costs for a year of use, which is the equivalent annual cost with no discounting. The chance it lasts is 1 less the chance the repair fails or the used item dies early; if it does, the money is spent and the years are not had. The tipping point is the price at which the two cost the same a year, solved directly. "Close call" means within 10%.</span></div>
+      <div class="f"><span class="n">E2</span><span class="eq">average back      = chance x payout + smaller prizes
+back per $1       = average back / price
+break-even chance = (price - smaller prizes) / payout</span><span class="why">Protection and bets: an expected value. For protection there is a second test the average cannot answer, whether the loss is larger than the surprise bill the person says they could handle. Cover that loses on average is reported as "paying for peace of mind" when it is.</span></div>
+      <div class="f"><span class="n">E3</span><span class="eq">net cost        = price - resale          (a subscription has no resale)
+cost per use    = net cost / uses
+break-even uses = net cost / price of one use another way</span><span class="why">Subscriptions and purchases. "Close call" means the cost per use is within 10% of the other price.</span></div>
+      <div class="f"><span class="n">E4</span><span class="eq">fee         = total paid back - cash received
+yearly rate = fee / cash received x 365 / days
+pawn only:  expected cost = (1 - q) x fee + q x max(0, item value - cash)</span><span class="why">Borrowing. The yearly rate is the simple rate, not compounded, which is how short loans are usually quoted. q is the chance the item is not redeemed. Above 36% a year the deal is reported as very expensive; that line is the cap in the US Military Lending Act.</span></div>
+      <div class="f"><span class="n">E5</span><span class="eq">total cost    = upfront + income given up per year x years to finish
+gain per year = chance it works out x extra per year
+value back    = sum of each year's gain / 1.03 ^ year
+net           = value back - total cost</span><span class="why">Investing in something. Later years are discounted at a fixed 3% a year. Gains start after the years to finish. "Barely pays off" means the net is positive but under a quarter of the cost.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The formulas behind on-site, hybrid or work from home</h2>
+    <div>
+      <div class="f"><span class="n">A1</span><span class="eq">office cost         = people x share needing a desk x cost of a desk
+support cost        = people x support per person
+cost of leavers     = people x extra share leaving x cost to replace one
+cost of lost output = people x value of a year's work x (-output change)
+pay difference      = people x pay x change in pay needed
+getting up to speed = hires a year x extra weeks x value of a year's work / 52
+team travel         = people x cost per person of bringing the team together
+business total      = the seven added together
+
+commute cost per person  = days in x 48 x cost of a day's commute
+commute hours per person = days in x 48 x hours of a day's commute
+home cost per person     = (5 - days in) x 48 x cost of a day at home
+cost to each person      = commute cost + home cost
+as a share of pay        = cost to each person / pay</span><span class="why">A differential analysis of three arrangements for one team. Pay is the same under all three unless a difference is entered. Every line can favour any arrangement, including the change in people leaving, which may be entered as fewer. The page recommends none: its three worked examples each come out in favour of a different arrangement, and a test confirms that they do. The value of a year's work defaults to pay, which is its floor: the least the work can be worth is what is paid for it. The employee's costs are borne by the employee and are not in the business total; they are reported beside it as a second bottom line. A five-day week and 48 working weeks are assumed. The change in output and the extra leavers are the user's own estimates: no default is supplied because the evidence on both is disputed and differs by team.</span></div>
+      <div class="f"><span class="n">A2</span><span class="eq">output change at which A costs the same as B
+    = -(B total - A total without its output line) / (people x value of a year's work)
+extra leavers at which A costs the same as B
+    = (B total - A total without its leavers line) / (people x cost to replace one)</span><span class="why">The tipping points. Each cost is a straight line in its own input, so the point where two arrangements cost the same is found with one division. They show how far the cheapest arrangement's own estimates can slip before it stops being cheapest. The tests put each one back in and confirm the two totals are then equal.</span></div>
+    </div>
+  </section>
+
+  <section class="card" id="barriers">
+    <h2>The formulas behind the cost of barriers</h2>
+    <div>
+      <div class="f"><span class="n">B1</span><span class="eq">For interview round r, with a week count of days per round / 7:
+
+candidates in round r    = candidates x share going on ^ (r - 1), and never fewer than 1
+interviewers' time       = candidates in round r x interviewers x hours each x cost of an hour
+the empty seat           = weeks per round x cost of the seat a week
+still free after round r = (1 - chance of another offer a week) ^ (weeks so far)
+risk of losing them      = (still free before - still free after) x cost of losing the first choice
+cost of round r          = the three added together
+
+mistakes left before r   = chance with no interviews x (1 - share caught) ^ (r - 1)
+round r catches          = mistakes left before r x share caught x cost of a hire that does not work out
+net of round r           = round r catches - cost of round r
+best stopping point      = the number of rounds with the largest running total of the nets</span><span class="why">Each round is judged on its own: what it takes off the risk of a hire that does not work out, against what it costs. Two things here multiply. What is left to catch shrinks by the same share each round, so each round catches less than the one before. The chance that a candidate with other offers is still available falls by the same share each week, so it depends on the weeks waited and not on how they are divided. Every round is treated alike, which is a simplification: in practice rounds do different jobs. The share caught, the chance of another offer and the cost of a hire that does not work out are the user's own estimates. No default is supplied as fact, and the example figures are illustrative. A hire needs at least one round, so the best stopping point is never fewer than one.</span></div>
+      <div class="f"><span class="n">B2</span><span class="eq">share a round must catch to pay for itself
+    = cost of the round / (mistakes left before it x cost of a hire that does not work out)
+
+candidates' hours          = sum over the rounds of candidates in the round x hours a candidate gives to a round</span><span class="why">The tipping point, by one division, for the first round past the best stopping point. Above 100% the round cannot pay for itself on the figures given, because it costs more than all the risk left to remove. The candidates' hours are not in the employer's total; they are reported beside it as a measure of candidate experience. The tests put the tipping share back in and confirm the round then breaks even.</span></div>
+      <div class="f"><span class="n">B3</span><span class="eq">For step r of any other barrier, in a month:
+
+good people left before r = good people arriving x (1 - share giving up) ^ (r - 1)
+unwanted left before r    = unwanted arriving x (1 - share caught) ^ (r - 1)
+handling                  = (good left + unwanted left) x cost to handle one person at one step
+good people who give up   = good left x share giving up x what each is worth
+step r stops              = unwanted left x share caught x what each one costs
+fee income                = everyone who gets through step r x the fee for it
+step r gets back          = step r stops + fee income
+net of step r             = step r gets back - handling - good people who give up
+share of good people kept = (1 - share giving up) ^ steps
+
+share a step can turn away and still pay
+    = (step r stops + fee from everyone who would get through - handling)
+      / (good left x (what each is worth + the fee))
+
+kept out, and wanted      = good people arriving - good people who get through
+kept out, as intended     = unwanted arriving - unwanted who get through
+wanted share of kept out  = kept out, and wanted / everyone kept out
+
+goes at a step            = sum over the steps of everyone who reaches that step
+the people's hours        = goes at a step x hours a step takes one person
+spent for nothing         = (goes at a step - those who get through x steps) x hours a step takes one person</span><span class="why">The same judgement for a barrier many people pass through: a sign-up form, a checkout, a chain of sign-offs. Losing 10% at each of three steps keeps 72.9%, not 70%, because each step loses a share of those who are left. Here the best stopping point can be no steps at all. A single requirement, such as a degree or a deposit, is one step: the share it turns away of the people wanted, and the share it stops of those it was meant for, are the two estimates the answer turns on. Who is kept out is counted both ways, and the time and money the barrier costs the people going through it are reported as a second bottom line, with the part spent by those who end up outside shown separately. A fee, a membership or a paywall is a barrier that also brings money in: each person who gets through pays, and each person turned away takes with them both the fee and whatever else they were worth. Steps required by law, by contract or for safety are outside this sum; for those the question is how many steps the requirement takes, not whether to have it.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The formulas behind the gig work log</h2>
+    <div>
+      <div class="f"><span class="n">G1</span><span class="eq">gross             = pay + tips
+car cost          = miles x cost of a mile
+kept before tax   = gross - car cost - other costs
+
+mileage deduction = miles x deduction rate
+profit for tax    = gross - mileage deduction - other costs     (not below 0)
+self-employment tax = profit for tax x 0.9235 x 0.153
+income tax          = (profit for tax - self-employment tax / 2) x your rate
+taxes to set aside  = self-employment tax + income tax
+
+you keep      = kept before tax - taxes to set aside
+stated hourly = gross / hours
+real hourly   = you keep / hours</span><span class="why">The cost of a mile and the deduction rate are separate inputs. The first is what driving really costs the person; the second is what the tax rules allow. Both start at 0.70, the US IRS standard mileage rate for business use in 2025; the rate is set yearly and should be checked. The standard rate is taken in place of actual vehicle expenses, not in addition to them. The self-employment tax is 15.3% (12.4% Social Security and 2.9% Medicare) on 92.35% of net earnings, and half of it is deducted before income tax. Taxes are worked out on the shifts in view as though they were the whole year. The result is an amount to set aside, not a tax return: it leaves out state tax, the Social Security wage cap, credits, other income and other deductions.</span></div>
+      <div class="f"><span class="n">G2</span><span class="eq">gain from a lever = real hourly with one input moved 10%  -  real hourly now
+
+t = se + (1 - se / 2) x income tax rate,     se = 0.9235 x 0.153
+least pay for a further mile = (cost of a mile - t x deduction rate) / (1 - t)</span><span class="why">What would change it. Each lever is found by working G1 again with one input moved a tenth, so nothing is approximated. Pay, tips, miles and other costs enter G1 in straight lines: twice the move gives exactly twice the change. Hours divide, so less time for the same pay moves the rate along a curve (10% less time multiplies it by 1 / 0.9). The least pay for a mile is solved from "one more mile changes what is kept by zero"; t is the tax on a further dollar of profit. With no taxable profit it is simply the cost of a mile. The tests confirm it by adding a trip paid at exactly that rate and checking that what is kept does not move.</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Conventions and assumptions</h2>
+    <ul class="list">
+      <li><b>Monthly steps.</b> Flows are counted at the end of each month. The one-time cost is paid at the start and is not discounted.</li>
+      <li><b>Level flows.</b> The saving, the side costs and the lost contribution each run at a constant yearly rate. The lost contribution is zero until the delay has passed, then starts in full.</li>
+      <li><b>Expected value.</b> The reversal cost is the probability times the cost, spread evenly over the period. It is an average over many such decisions, not what any one decision will cost.</li>
+      <li><b>The multiplied-parts model (F2).</b> This is the O-ring production function. It assumes each marked part needs the resource independently. It is a model choice, not an accounting rule. If two marked parts are really the same income seen twice, the loss is overstated. Marking one part gives the plain proportional loss.</li>
+      <li><b>Proportional dependence.</b> Income D is assumed to fall in proportion to the share of output lost.</li>
+      <li><b>Strengths.</b> "Partly" is set to 0.5. That figure is a convention, not a measurement.</li>
+      <li><b>Sizing a cut (F13).</b> Assumes the idle part can be identified and is removed first, and that the saving, the one-time cost, the side costs and the reversal cost all scale with the size of the cut. In practice identifying what is idle is the hard part.</li>
+      <li><b>Verdict bands.</b> "Wins, barely" means the multiple is 0.5 or more but under 1. The 0.5 line is a presentation choice.</li>
+      <li><b>Simple view.</b> When only the three numbers are entered, the tool assumes nothing spare, a 100% contribution margin, no delay, no side costs, no reversal risk, and no discounting.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>What it leaves out</h2>
+    <ul class="list">
+      <li><b>Tax.</b> All figures are before tax.</li>
+      <li><b>Working capital and financing.</b> Changes in stock, receivables or borrowing are not modelled.</li>
+      <li><b>Gradual ramps.</b> Real losses usually build over time. Here they start at once after the delay, which overstates early losses and can understate late ones.</li>
+      <li><b>Effects beyond the period.</b> Nothing after the look-ahead period is counted.</li>
+      <li><b>Benefits of the cut other than the saving.</b> If a cut also improves focus or speed, enter that as part of the saving.</li>
+      <li><b>Uncertainty in the inputs.</b> One estimate goes in and one answer comes out. The break-even spare share (F11) shows how much room there is; it is worth testing other inputs the same way by changing them.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>How to check it yourself</h2>
+    <div class="prose">
+      <p><b>By hand.</b> Follow the worked example above with a calculator, or put F1 to F10 in a spreadsheet with one row per month.</p>
+      <p><b>By running the tests.</b> The code ships with nine test files. With Node.js installed, in the folder holding the files:</p>
+    </div>
+    <div class="cmd">node barriers_test.js       47 checks: interview rounds and other barriers, who is kept out, the tipping point, 600 random cases
+node arrange_test.js        36 checks: on-site, hybrid and work from home, both bottom lines, the tipping points
+node gig_test.js            40 checks: the gig work sums, the levers, the periods, the spreadsheet file
+node worth_test.js          119 checks: the Community sums, the reading of typed figures, every example
+node saving_test.js         33 checks: hand-worked cases, limits, break-even
+node saving_reach_test.js   18 checks: the chain form
+node saving_touch_test.js   20 checks: parts and strengths
+node multiple_test.js       51 checks: chain, cascade, climb back, compounding, shrinking and growing steps
+node verify_test.js         27 checks: independent verification</div>
+    <div class="prose">
+      <p><b>Independent verification.</b> <code>verify_test.js</code> contains a second implementation written from the formulas on this page, one month at a time like a spreadsheet, sharing no code with the calculator. It compares nine figures across 500 random cases, checks the discounting against the textbook annuity formula, the break-even figure by substitution, and the climb-out figures against the textbook loan-term formula.</p>
+    </div>
+  </section>
+
+  <section class="card" id="privacy">
+    <h2>Where your numbers go</h2>
+    <ul class="list">
+      <li><b>Nowhere.</b> Every calculation is done by the page itself, in your browser. The calculators have no form to submit and make no request that carries what you type. No server stores, saves or sells your entries, because no server receives them.</li>
+      <li><b>The one exception is the feedback form.</b> What you write there is sent, when you press Send and not before, to the site's owner by email. If you tick the box allowing your comment to be shown, the comment is kept until he publishes it, declines it, or 60 days pass. If you do not tick it, the email is the only copy. Your email address, if you give one, is used only to reply and is never shown or kept on the site. The form does not record your device or your network address.</li>
+      <li><b>What is kept on your own device.</b> The gig work log keeps your shifts and your rates. Each page of decisions remembers which one you last picked. The detailed version remembers the figures you entered under "my own", so they are there next time. Both are held in this browser's own storage on this device. Clearing the site's data in your browser removes them.</li>
+      <li><b>What the web host sees.</b> The pages are delivered like any web page, so the host sees that a page was asked for. The typefaces are loaded from Google Fonts, which sees the same. Neither request contains your numbers.</li>
+      <li><b>No accounts, no cookies, no tracking.</b> If that ever changes, this section will say so first.</li>
+      <li><b>How to check.</b> Load a page, disconnect from the internet, and carry on: the calculator keeps working. Or open your browser's network panel and watch it stay quiet while you type.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Sources for the method</h2>
+    <ul class="list">
+      <li><b>Differential (relevant-cost) analysis, contribution margin and opportunity cost</b> are standard topics in management accounting textbooks, for example Garrison, Noreen and Brewer, <i>Managerial Accounting</i>.</li>
+      <li><b>The multiplied-parts form (F2)</b> follows Michael Kremer, "The O-Ring Theory of Economic Development", <i>Quarterly Journal of Economics</i>, 1993.</li>
+      <li><b>Present value and annuity formulas (F5, W5)</b> are standard in any corporate finance text.</li>
+      <li><b>The survey of finance executives</b> quoted on the "Why it multiplies" page is Graham, Harvey and Rajgopal, "The Economic Implications of Corporate Financial Reporting", <i>Journal of Accounting and Economics</i>, 2005.</li>
+    </ul>
+    <div class="prose"><p>The example inputs throughout the tool are illustrative and are not drawn from these sources.</p></div>
+  </section>
+</div>
+
+<footer class="privacy"><p><b>Your numbers stay on this device.</b> Every sum is done in your browser. Nothing you type into a calculator is sent to, stored on, or sold by any server, and there are no accounts, cookies or tracking. <a href="formulas.html#privacy">The details</a>. <a href="feedback.html">Send feedback</a>.</p></footer>
+
+<script src="saving.js"></script>
+<script src="saving-examples.js"></script>
+<script src="formulas-page.js"></script>
+<script src="art.js"></script>
