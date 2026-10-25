@@ -62,7 +62,7 @@ const PAGES = [
   { from: 'formulas.html', to: 'formulas.html', lit: 'formulas', title: 'The Formulas: every calculation, published',
     description: 'Every formula, input and assumption behind the calculators, with a worked example that can be checked by hand, the tests, and the sources.' },
 ];
-const SCRIPTS = ['feedback-page.js', 'home-page.js', 'paper-page.js', 'art.js', 'arrange.js', 'arrange-examples.js', 'arrange-page.js', 'barriers.js', 'barriers-chart.js', 'barriers-examples.js', 'barriers-page.js', 'gig.js', 'gig-page.js', 'worth.js', 'worth-scenarios.js', 'worth-answer.js', 'worth-page.js', 'saving.js', 'saving-examples.js', 'saving-page.js', 'multiple.js', 'why-page.js', 'formulas-page.js', 'system-toy.js', 'system-draft-page.js', 'kinds.js', 'home-draft-page.js'];
+const SCRIPTS = ['app-install.js', 'feedback-page.js', 'home-page.js', 'paper-page.js', 'art.js', 'arrange.js', 'arrange-examples.js', 'arrange-page.js', 'barriers.js', 'barriers-chart.js', 'barriers-examples.js', 'barriers-page.js', 'gig.js', 'gig-page.js', 'worth.js', 'worth-scenarios.js', 'worth-answer.js', 'worth-page.js', 'saving.js', 'saving-examples.js', 'saving-page.js', 'multiple.js', 'why-page.js', 'formulas-page.js', 'system-toy.js', 'system-draft-page.js', 'kinds.js', 'home-draft-page.js'];
 
 // ── Links ──────────────────────────────────────────────────────────────────
 // The working pages link to each other by file name. On the site, pages are
@@ -175,7 +175,7 @@ const QUESTION_OF = { 'worth.html': 'spend', 'cut.html': 'cut', 'earn.html': 'ea
 // to search engines in the form they read. The two are built from this one list.
 const FAQ = [
   ['What is Cost of Saving?', 'A set of free calculators for finding the hidden cost: the actual cost, not the one presented or reported. They show both halves of a money decision: the saving or price you see at once, and the costs that show up later. They cover spending, cutting, earning, putting things off, and the cost of adding steps.'],
-  ['Is it free? Do I need an account?', 'It is free. There is no account, no sign-up and nothing to install.'],
+  ['Is it free? Do I need an account?', 'It is free. There is no account and no sign-up. It works in any browser, and you can also install it as an app on your phone or computer, where it works without a connection.'],
   ['Where do my numbers go?', 'Nowhere. Every sum is done in your own browser, and nothing you type into a calculator is sent to any server. The feedback form is the one exception: it sends what you write to the author, and only when you press Send.'],
   ['How do I know the sums are right?', 'Every formula, input and assumption is published on the formulas page, with a worked example you can follow on a pocket calculator. The code is covered by hundreds of automated checks, and the main calculator is checked against a second, independent version of itself.'],
   ['Does it say every cut is a bad idea?', 'No. Many cuts hold up, and the calculators say so. Cancelling a subscription almost nobody uses, or selling idle machine time, costs very little for each dollar saved. The aim is to tell the two kinds apart before deciding.'],
@@ -297,6 +297,9 @@ function head(page, html) {
     `<meta property="og:image:height" content="630">`,
     `<meta name="twitter:card" content="summary_large_image">`,
     `<meta name="theme-color" content="#0f172a">`,
+    // Installable as an app: the app's description, and the script that offers installing and works offline.
+    `<link rel="manifest" href="/manifest.webmanifest">`,
+    `<script defer src="/app-install.js"></script>`,
   ];
   // The front page also describes the site as a whole, in the form search engines read.
   if (page.to === 'index.html') {
@@ -706,7 +709,7 @@ for (const page of PAGES) {
 
 for (const file of SCRIPTS) fs.writeFileSync(path.join(OUT, file), relinkScript(ownLinks(fs.readFileSync(path.join(SRC, file), 'utf8'))));
 
-for (const file of ['logo.png', 'logo-144.png', 'icon-180.png', 'icon-192.png', 'icon-48.png', 'icon-32.png', 'og.png']) {
+for (const file of ['logo.png', 'logo-144.png', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-512-maskable.png', 'icon-48.png', 'icon-32.png', 'og.png']) {
   fs.copyFileSync(path.join(SRC, 'assets', file), path.join(OUT, file));
 }
 
@@ -790,6 +793,55 @@ fs.writeFileSync(path.join(OUT, '404.html'), `<!doctype html>
 
 // An old address keeps working if anyone has it.
 fs.writeFileSync(path.join(OUT, '_redirects'), '/workers.html  /  301\n/workers  /  301\n');
+
+// ── The app: what installs, and what works with no connection ───────────────
+// manifest.webmanifest describes the app to the phone or computer (its name, icon and colors). sw.js keeps
+// a copy of every calculator page, its scripts and pictures on the device, so the app opens and works
+// offline; worked examples are kept as they are opened. Its cache name changes whenever any file changes,
+// so an installed app picks up a new version the next time it is opened online.
+{
+  fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify({
+    id: '/', name: 'Cost of Saving', short_name: 'Cost of Saving',
+    description: 'Free calculators for the hidden cost of saving and spending money. Everything is worked out on your device.',
+    start_url: '/', scope: '/', display: 'standalone', orientation: 'any',
+    background_color: '#0f172a', theme_color: '#0f172a', lang: 'en-US', dir: 'ltr',
+    categories: ['finance', 'productivity', 'utilities'],
+    icons: [
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: '/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+    ],
+  }, null, 2));
+  const crypto = require('crypto');
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]);
+  const all = walk(OUT).map((f) => path.relative(OUT, f).split(path.sep).join('/'));
+  // Kept on the device from the start: the pages and everything they load, not the worked-example pages.
+  const keep = all.filter((f) => !f.startsWith('decide/') && !/^(_redirects|robots\.txt|sitemap\.xml|llms\.txt|404\.html|[0-9a-f]{32}\.txt)$/.test(f));
+  const urls = keep.map((f) => '/' + (f === 'index.html' ? '' : f.replace(/\.html$/, '')));
+  const version = crypto.createHash('sha256').update(keep.map((f) => f + fs.readFileSync(path.join(OUT, f)).length + crypto.createHash('md5').update(fs.readFileSync(path.join(OUT, f))).digest('hex')).join('|')).digest('hex').slice(0, 12);
+  fs.writeFileSync(path.join(OUT, 'sw.js'), `// Cost of Saving offline copy. Built by build-site.js; version ${version}.
+const CACHE = 'cos-${version}';
+const KEEP = ${JSON.stringify(urls)};
+self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(KEEP)).then(() => self.skipWaiting())); });
+self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k.startsWith('cos-') && k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('fetch', (e) => {
+  const req = e.request, url = new URL(req.url);
+  if (req.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith('/api/')) return;   // feedback and counts go to the network
+  if (req.mode === 'navigate') {
+    // Pages: the newest from the network when online, the kept copy when not.
+    e.respondWith(fetch(req).then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; })
+      .catch(() => caches.match(req, { ignoreSearch: true }).then((hit) => hit || caches.match('/'))));
+    return;
+  }
+  // Scripts and pictures: the kept copy at once, refreshed in the background.
+  e.respondWith(caches.match(req).then((hit) => {
+    const fresh = fetch(req).then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; }).catch(() => hit);
+    return hit || fresh;
+  }));
+});
+`);
+  console.log(`app: manifest.webmanifest, sw.js (version ${version}, ${urls.length} files kept offline)`);
+}
 
 const files = fs.readdirSync(OUT).filter((name) => name !== 'decide').sort();
 const bytes = files.reduce((n, f) => n + fs.statSync(path.join(OUT, f)).size, 0);
