@@ -329,7 +329,7 @@ function head(page, html) {
   return out;
 }
 const PORTFOLIO_LABEL = `
-<p class="pf-label" style="max-width:60rem;margin:28px auto 36px;padding:0 max(16px,env(safe-area-inset-left,0px));font:14px/1.5 system-ui,sans-serif;color:#64748b;text-align:center">Personal portfolio / skills demonstration: not a commercial product. Made by Kenneth W. Bingham to show employers his work. Free to use, with no ads and nothing to buy.</p>
+<p class="pf-label" style="max-width:60rem;margin:28px auto 36px;padding:0 max(16px,env(safe-area-inset-left,0px));font:14px/1.55 system-ui,sans-serif;color:#94a3b8;text-align:center">Free for anyone to use: no ads, no cookies, no sign-in and no personal data needed. Personal portfolio / skills demonstration: not a commercial product.<br>For potential employers and recruiters: see my online portfolio at <a href="https://butterflyfx.us" style="color:#2dd4bf">butterflyfx.us</a> for how it was made and the technologies and skills behind it.</p>
 `;
 
 // ── Where to go next ───────────────────────────────────────────────────────
