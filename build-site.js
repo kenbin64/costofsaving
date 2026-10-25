@@ -176,6 +176,7 @@ const QUESTION_OF = { 'worth.html': 'spend', 'cut.html': 'cut', 'earn.html': 'ea
 const FAQ = [
   ['What is Cost of Saving?', 'A set of free calculators for finding the hidden cost: the actual cost, not the one presented or reported. They show both halves of a money decision: the saving or price you see at once, and the costs that show up later. They cover spending, cutting, earning, putting things off, and the cost of adding steps.'],
   ['Is it free? Do I need an account?', 'It is free. There is no account and no sign-up. It works in any browser, and you can also install it as an app on your phone or computer, where it works without a connection.'],
+  ['Who made it, and why?', 'Kenneth W. Bingham, as a personal portfolio and skills demonstration. It is not a commercial product: there are no ads and nothing to buy.'],
   ['Where do my numbers go?', 'Nowhere. Every sum is done in your own browser, and nothing you type into a calculator is sent to any server. The feedback form is the one exception: it sends what you write to the author, and only when you press Send.'],
   ['How do I know the sums are right?', 'Every formula, input and assumption is published on the formulas page, with a worked example you can follow on a pocket calculator. The code is covered by hundreds of automated checks, and the main calculator is checked against a second, independent version of itself.'],
   ['Does it say every cut is a bad idea?', 'No. Many cuts hold up, and the calculators say so. Cancelling a subscription almost nobody uses, or selling idle machine time, costs very little for each dollar saved. The aim is to tell the two kinds apart before deciding.'],
@@ -306,7 +307,7 @@ function head(page, html) {
     meta.push(`<script type="application/ld+json">${JSON.stringify({
       '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Cost of Saving', url: DOMAIN + '/',
       description: page.description, applicationCategory: 'FinanceApplication', operatingSystem: 'Any',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      isAccessibleForFree: true,
       author: { '@type': 'Person', name: 'Kenneth W. Bingham' },
     })}</script>`);
   }
@@ -323,8 +324,13 @@ function head(page, html) {
   let out = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${page.title}</title>\n${meta.join('\n')}`);
   // The working pages are fragments. On a web host each needs its own document start.
   if (!/^\s*<!doctype/i.test(out)) out = `<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n${out}`;
+  // Every page says plainly what the site is (Ken, 2026-10-25): his portfolio, free, not a product.
+  out = out.trimEnd() + PORTFOLIO_LABEL;
   return out;
 }
+const PORTFOLIO_LABEL = `
+<p class="pf-label" style="max-width:60rem;margin:28px auto 36px;padding:0 max(16px,env(safe-area-inset-left,0px));font:14px/1.5 system-ui,sans-serif;color:#64748b;text-align:center">Personal portfolio / skills demonstration: not a commercial product. Made by Kenneth W. Bingham to show employers his work. Free to use, with no ads and nothing to buy.</p>
+`;
 
 // ── Where to go next ───────────────────────────────────────────────────────
 // Each page ends with links to related things elsewhere on the site: the same
@@ -802,7 +808,7 @@ fs.writeFileSync(path.join(OUT, '_redirects'), '/workers.html  /  301\n/workers 
 {
   fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify({
     id: '/', name: 'Cost of Saving', short_name: 'Cost of Saving',
-    description: 'Free calculators for the hidden cost of saving and spending money. Everything is worked out on your device.',
+    description: 'Free calculators for the hidden cost of saving and spending money, worked out on your device. Personal portfolio / skills demonstration: not a commercial product.',
     start_url: '/', scope: '/', display: 'standalone', orientation: 'any',
     background_color: '#0f172a', theme_color: '#0f172a', lang: 'en-US', dir: 'ltr',
     categories: ['finance', 'productivity', 'utilities'],
